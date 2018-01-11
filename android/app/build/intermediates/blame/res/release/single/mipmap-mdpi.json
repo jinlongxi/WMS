@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/release/mipmap-mdpi/ic_launcher.png",
+        "source": "/Users/jinlongxi/WMS/android/app/src/main/res/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/release/mipmap-mdpi/ic_launcher.png",
+        "source": "/Users/jinlongxi/workspace/WMS/android/app/src/main/res/mipmap-mdpi/ic_launcher.png"
+    }
+]
