@@ -22,7 +22,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         //判断登录状态
-        judgeLogin:(loginStatus)=>{
+        judgeLogin: (loginStatus)=> {
             dispatch(judgeLogin(loginStatus))
         }
     };

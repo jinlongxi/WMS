@@ -20,7 +20,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         //查询场所列表
-        getPlaceList:()=>{
+        getPlaceList: ()=> {
             dispatch(getPlaceList())
         },
     };

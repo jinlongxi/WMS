@@ -117,7 +117,7 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
             formData.append("productQuantity", JSON.stringify(productQuantity));
             console.log(formData);
             Request.postRequest(url, formData, function (response) {
-                console.log(JSON.stringify(response));
+                //console.log(JSON.stringify(response));
                 const {_ERROR_MESSAGE_:_ERROR_MESSAGE_}=response;
                 if (_ERROR_MESSAGE_) {
                     alert(_ERROR_MESSAGE_)

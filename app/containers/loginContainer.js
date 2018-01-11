@@ -21,8 +21,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
     return {
         //添加当前库位信息
-        appLogin:(username,password)=>{
-            dispatch(appLogin(username,password))
+        appLogin: (username, password)=> {
+            dispatch(appLogin(username, password))
         },
     };
 };

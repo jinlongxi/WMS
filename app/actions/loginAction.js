@@ -19,7 +19,7 @@ export function appLogin(username, password) {
         formData.append("login.password", password);
 
         Request.postRequest(url, formData, function (response) {
-            console.log(JSON.stringify(response));
+            //console.log(JSON.stringify(response));
             let {userLogin:userLogin}=response;
             if (userLogin) {
                 let userInfo = {

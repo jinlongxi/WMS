@@ -31,16 +31,16 @@ const mapDispatchToProps = (dispatch) => {
             dispatch(verifyFacilityLocation(facilityId, locationSeqId, locationType))
         },
         //验证产品合法性
-        verifyProduct: (facilityId, locationSeqId, sku,stock)=> {
-            dispatch(verifyProduct(facilityId, locationSeqId, sku,stock))
+        verifyProduct: (facilityId, locationSeqId, sku, stock)=> {
+            dispatch(verifyProduct(facilityId, locationSeqId, sku, stock))
         },
         //清空数据
         clearData: ()=> {
             dispatch(clearData())
         },
         //移库
-        multiStockMove:(facilityId, locationSeqId,targetLocationSeqId, productQuantity,selectSkuSize)=>{
-            dispatch(multiStockMove(facilityId, locationSeqId,targetLocationSeqId, productQuantity,selectSkuSize))
+        multiStockMove: (facilityId, locationSeqId, targetLocationSeqId, productQuantity, selectSkuSize)=> {
+            dispatch(multiStockMove(facilityId, locationSeqId, targetLocationSeqId, productQuantity, selectSkuSize))
         }
     };
 };

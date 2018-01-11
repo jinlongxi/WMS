@@ -25,7 +25,6 @@ class App extends Component {
     render() {
         const isLogin = this.props.loginState.isLogin;
         const isLoading = this.props.loginState.isLoading;
-        console.log(isLogin, isLoading);
         return (
             isLoading ? Util.bootUp :
                 !isLogin ? <Navigation component={LoginContainer}/> : <Navigation component={PlaceContainer}/>
@@ -34,7 +33,6 @@ class App extends Component {
 
     componentWillMount() {
         DeviceStorage.get('loginStatus').then((loginStatus)=> {
-            console.log(loginStatus);
             if (loginStatus === 'IsLogged') {
                 console.log('用户已登录');
                 this.props.judgeLogin(true)
