@@ -24,11 +24,11 @@ export const addTargetPosition = (positionId) => {
 };
 
 //添加扫描到的SKU
-export const addSelectSku = (sku) => {
+export const addSelectSku = (sku, stock) => {
     return {
         type: 'ADD_SELECT_SKU_INFO',
         sku: sku,
-        stock: increaseStock
+        stock: stock
     }
 };
 
@@ -48,7 +48,7 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType) 
             formData.append("noConditionFind", 'Y');
             formData.append("inputFields", JSON.stringify(InputFields));
             Request.postRequest(url, formData, function (response) {
-                console.log(JSON.stringify(response));
+                //console.log(JSON.stringify(response));
                 const {list:list}=response;
                 if (list.length < 1) {
                     alert('当前库位信息不合法');
@@ -86,7 +86,8 @@ export const verifyProduct = (facilityId, locationSeqId, sku, stock) => {
                 } else if (quantityOnHandTotal < stock) {
                     alert('当前库位产品数量:' + quantityOnHandTotal + '< 扫描数量:' + stock);
                 } else {
-                    dispatch(addSelectSku(sku));
+                    console.log(sku, stock);
+                    dispatch(addSelectSku(sku, stock));
                 }
             }, function (err) {
                 console.log(JSON.stringify(err));

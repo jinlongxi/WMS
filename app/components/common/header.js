@@ -30,7 +30,7 @@ var Header = React.createClass({
         )
     },
     _pop: function () {
-        if(this.props.initObj.backType==='logOut'){
+        if (this.props.initObj.backType === 'logOut') {
             console.log('退出登录');
             this.props.loginOut();
             const {navigator} = this.props;
@@ -41,7 +41,7 @@ var Header = React.createClass({
                     params: {},
                 })
             }
-        }else {
+        } else {
             this.props.navigator.pop();
         }
     }
@@ -59,19 +59,19 @@ var styles = StyleSheet.create({
         flexDirection: 'row',
         position: 'absolute',
         left: 0,
-        height:50
+        paddingVertical: 15
     },
     btn_text: {
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
         lineHeight: 18
-
     },
     title_container: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     title: {
         color: '#fff',

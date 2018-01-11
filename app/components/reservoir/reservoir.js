@@ -4,6 +4,8 @@
 import React, {Component} from 'react';
 import Header from './reservoirHeader';
 import Icon from '../common/icon_enter';
+import prompt from 'react-native-prompt-android';
+import Menu, {MenuItem} from 'react-native-material-menu';
 import {
     AppRegistry,
     StyleSheet,
@@ -21,22 +23,40 @@ import {
     BackHandler,
     Platform,
     Keyboard,
-    InteractionManager
+    InteractionManager,
+    AlertIOS
 } from 'react-native';
 class Reservoir extends React.Component {
     constructor(props) {
         super(props);
+        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             selectBtn: 1,
-            text: ''
+            text: '',
+            selectSkuSize: 0,
+            dataSource: ds.cloneWithRows([]),
         };
         this._switchBtn = this._switchBtn.bind(this);
         this._clearData = this._clearData.bind(this);
+        this._modifyNumber = this._modifyNumber.bind(this);
+        this._renderRow = this._renderRow.bind(this);
     }
+
+    //这个地方太恶心了  是为了把系统键盘拿掉
+    menu = null;
+    setMenuRef = ref => {
+        this.menu = ref;
+    };
+    hideMenu = () => {
+        this.menu.hide();
+    };
+    showMenu = () => {
+        this.menu.show();
+    };
 
     _renderRow(item) {
         return (
-            <TouchableOpacity style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={this._modifyNumber.bind(this, item)}>
                 <Text style={[{flex: 1,}, styles.txt,]}>{item.sku}</Text>
                 <Text style={{fontWeight: 'bold'}}>{item.stock}</Text>
                 <Icon/>
@@ -56,11 +76,42 @@ class Reservoir extends React.Component {
         );
     }
 
-    //切换功能按钮
-    _switchBtn(currentBtn) {
-        this.setState({
-            selectBtn: currentBtn,
-        })
+    //修改扫描SKU数量
+    _modifyNumber(item) {
+        this.showMenu();
+        this.hideMenu();
+        prompt(
+            '修改产品数量',
+            item.sku,
+            [
+                {
+                    text: '确定',
+                    onPress: (number) => {
+                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number);
+                        this._isFocused()
+                    }
+                },
+                {
+                    text: '删除',
+                    onPress: () => {
+                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, 0);
+                        this._isFocused()
+                    }
+                },
+                {
+                    text: '取消',
+                    onPress: () => {
+                        console.log('Cancel Pressed');
+                        this._isFocused()
+                    }
+                },
+            ],
+            {
+                cancelable: false,
+                defaultValue: typeof item.stock === 'number' ? JSON.stringify(item.stock) : item.stock,
+                placeholder: '输入数量'
+            }
+        );
     }
 
     //扫描条码
@@ -104,24 +155,10 @@ class Reservoir extends React.Component {
                 let skuStock = 1;
                 skuList.map((item)=> {
                     if (item.sku === text)
-                        skuStock = item.stock + 1;
+                        skuStock = parseInt(item.stock) + 1;
                 });
                 return this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock);
         }
-    }
-
-    //清空数据
-    _clearData() {
-        console.log('清空扫描到的全部数据');
-        Alert.alert(
-            '数据清空',
-            '您确定要清空？',
-            [
-                {text: '确定', onPress: () => this.props.clearData()},
-                {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
-            ],
-            {cancelable: false}
-        );
     }
 
     //移库操作
@@ -138,7 +175,8 @@ class Reservoir extends React.Component {
             [
                 {
                     text: '确定',
-                    onPress: () => this.props.multiStockMove(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, this.props.reservoirState.targetPositionId, JsonArray, this.props.reservoirState.selectSkuSize)
+                    onPress: () => this.props.multiStockMove(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId,
+                        this.props.reservoirState.targetPositionId, JsonArray, this.state.selectSkuSize)
                 },
                 {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
             ],
@@ -166,6 +204,7 @@ class Reservoir extends React.Component {
                                    editable={true}
                                    value={this.state.text}
                                    onChangeText={this._scanning.bind(this)}
+                                   ref="aTextInputRef"
                         />
                         <View style={styles.btnContainer}>
                             <View style={styles.position}>
@@ -196,7 +235,7 @@ class Reservoir extends React.Component {
                                     }}>
                                     <Text style={styles.position_btn_text}>扫描产品</Text>
                                     <Text
-                                        style={styles.position_btn_text}>共{this.props.reservoirState.selectSkuSize}件</Text>
+                                        style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -215,20 +254,55 @@ class Reservoir extends React.Component {
                             : null
                     }
                 </View>
+                <Menu
+                    ref={this.setMenuRef}
+                    button={
+                        <TouchableOpacity onPress={this.showMenu}>
+                        </TouchableOpacity>
+                    }
+                >
+                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
+                </Menu>
                 <View style={styles.footer}>
-                    <TouchableOpacity style={styles.emptying} onPress={()=> {
-                        this._clearData()
-                    }}>
-                        <Text style={styles.footer_btn_text}>清空</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity style={styles.moving} onPress={()=> {
                         this._multiStockMove()
                     }}>
                         <Text style={styles.footer_btn_text}>移动</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity style={styles.emptying} onPress={()=> {
+                        this._clearData()
+                    }}>
+                        <Text style={styles.footer_btn_text}>清空</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         );
+    }
+
+    //切换功能按钮
+    _switchBtn(currentBtn) {
+        this._isFocused();
+        this.setState({
+            selectBtn: currentBtn,
+        })
+    }
+
+    //清空数据
+    _clearData() {
+        Alert.alert(
+            '数据清空',
+            '您确定要清空？',
+            [
+                {text: '确定', onPress: () => this.props.clearData()},
+                {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
+            ],
+            {cancelable: false}
+        );
+    }
+
+    //文本框获得焦点
+    _isFocused() {
+        this.refs.aTextInputRef.focus()
     }
 
     //键盘物理返回事件
@@ -243,11 +317,20 @@ class Reservoir extends React.Component {
         return false;//默认行为
     };
 
+    //键盘弹出事件响应
+    keyboardDidShowHandler(event) {
+        this.showMenu();
+        this.hideMenu();
+    }
+
     componentDidMount() {
         InteractionManager.runAfterInteractions(()=> {
             if (Platform.OS === 'android') {
                 BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
             }
+            //监听键盘弹出事件
+            this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',
+                this.keyboardDidShowHandler.bind(this));
         });
     }
 
@@ -256,12 +339,25 @@ class Reservoir extends React.Component {
             console.log('用户点击返回');
             BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
         }
+        //清空数据
+        this.props.clearData();
+        //卸载键盘弹出事件监听
+        if (this.keyboardDidShowListener != null) {
+            this.keyboardDidShowListener.remove();
+        }
     }
 
     componentWillReceiveProps(nextProps) {
+        const selectSkuSize = nextProps.reservoirState.selectSkuList;
+        console.log(nextProps.reservoirState.selectSkuList.length);
+        let number = 0;
+        selectSkuSize.map((item)=> {
+            number = number + parseInt(item.stock)
+        });
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.setState({
-            dataSource: ds.cloneWithRows(nextProps.reservoirState.selectSkuList)
+            dataSource: ds.cloneWithRows(nextProps.reservoirState.selectSkuList),
+            selectSkuSize: number
         })
     }
 }
@@ -269,7 +365,7 @@ class Reservoir extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#7a7a7a'
+        backgroundColor: '#7a7a7a',
     },
     main: {
         flex: 1
@@ -301,6 +397,7 @@ const styles = StyleSheet.create({
         borderRadius: 2,
         flexDirection: 'row',
         justifyContent: 'space-between',
+        padding: 6,
     },
     position_btn_text: {
         fontSize: 13,

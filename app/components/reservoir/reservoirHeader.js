@@ -64,11 +64,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         position: 'absolute',
         left: 0,
+        paddingVertical: 15
     },
     right_btn: {
         flexDirection: 'row',
         position: 'absolute',
-        right: 5,
+        right: 15,
+        padding: 5,
     },
     btn_text: {
         color: '#fff',

@@ -5,7 +5,7 @@ const initialState = {
     currentPositionId: 'C',
     targetPositionId: 'T',
     selectSkuList: [],
-    selectSkuSize: 0,
+    //selectSkuSize: 0,
     placeholderText: '扫描'
 };
 
@@ -14,7 +14,7 @@ const judgment = (selectSkuList, action) => {
     let back = true;
     for (var i = 0; i < selectSkuList.length; i++) {
         if (selectSkuList[i].sku === action.sku) {
-            selectSkuList[i].stock++;
+            selectSkuList[i].stock = action.stock;
             back = false;
             break
         }
@@ -43,7 +43,7 @@ export default function reservoir(state = initialState, action) {
         case TYPES.ADD_SELECT_SKU_INFO:
             return {
                 ...state,
-                selectSkuSize: state.selectSkuSize + 1,
+                //selectSkuSize: state.selectSkuSize + 1,
                 placeholderText: action.sku,
                 selectSkuList: judgment(state.selectSkuList, action)
             };

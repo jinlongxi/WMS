@@ -24,10 +24,10 @@ class Login extends React.Component {
         super(props);
         this.state = {
             radioSelect: false,
-            username:'liyufeng',
-            password:'fbcf321b45e1a457',
+            username: 'liyufeng',
+            password: 'fbcf321b45e1a457',
         };
-        this.appLogin=this.appLogin.bind(this);
+        this.appLogin = this.appLogin.bind(this);
     }
 
     render() {
@@ -37,15 +37,17 @@ class Login extends React.Component {
                 <View style={styles.form}>
                     <Text style={styles.header}>用户登录</Text>
                     <View style={styles.body}>
-                        <TextInput style={styles.input} value={this.state.username} placeholder='用户名' placeholderTextColor="#495057" onChangeText={(text)=>{
+                        <TextInput style={styles.input} value={this.state.username} placeholder='用户名'
+                                   placeholderTextColor="#495057" onChangeText={(text)=> {
                             this.setState({
-                                username:text
+                                username: text
                             })
                         }}
                                    underlineColorAndroid='transparent'/>
-                        <TextInput style={styles.input} value={this.state.password} secureTextEntry={true}  placeholder='密码' placeholderTextColor="#495057" onChangeText={(text)=>{
+                        <TextInput style={styles.input} value={this.state.password} secureTextEntry={true}
+                                   placeholder='密码' placeholderTextColor="#495057" onChangeText={(text)=> {
                             this.setState({
-                                password:text
+                                password: text
                             })
                         }}
                                    underlineColorAndroid='transparent'/>
@@ -55,7 +57,7 @@ class Login extends React.Component {
                             }}/>
                             <Text style={styles.radio_text}>记住密码</Text>
                         </View>
-                        <TouchableOpacity style={styles.btn} onPress={()=>{
+                        <TouchableOpacity style={styles.btn} onPress={()=> {
                             this.appLogin()
                         }}>
                             <Text style={styles.btn_text}>登录</Text>
@@ -67,14 +69,14 @@ class Login extends React.Component {
     }
 
     //用户登录
-    appLogin(){
-        const username=this.state.username;
-        const password=this.state.password;
-        this.props.appLogin(username,password);
+    appLogin() {
+        const username = this.state.username;
+        const password = this.state.password;
+        this.props.appLogin(username, password);
     }
 
     componentWillMount() {
-        if(this.props.loginState.isLogin){
+        if (this.props.loginState.isLogin) {
             const {navigator} = this.props;
             if (navigator) {
                 navigator.push({
@@ -87,7 +89,7 @@ class Login extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(nextProps.loginState.isLogin){
+        if (nextProps.loginState.isLogin) {
             const {navigator} = this.props;
             if (navigator) {
                 navigator.push({
@@ -130,9 +132,9 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         flexDirection: 'row'
     },
-    radio_text:{
-        fontSize:16,
-        textAlignVertical:'center'
+    radio_text: {
+        fontSize: 16,
+        textAlignVertical: 'center'
     },
     btn: {
         paddingHorizontal: 8,
