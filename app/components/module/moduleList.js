@@ -100,6 +100,7 @@ class moduleList extends Component {
         InteractionManager.runAfterInteractions(()=> {
             if (Platform.OS === 'android') {
                 BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
+                this.props.saveSelectPlaceList(this.props.selectStore.facilityId)
             }
         });
     }

@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import Place from '../components/place/place';
-import {getPlaceList} from '../actions/placeAction';
+import {getPlaceList,saveSelectPlaceList} from '../actions/placeAction';
 import {
     Platform,
     StyleSheet,
@@ -23,6 +23,10 @@ const mapDispatchToProps = (dispatch) => {
         getPlaceList: ()=> {
             dispatch(getPlaceList())
         },
+        //缓存选中场所全部库位信息
+        saveSelectPlaceList:(facilityId)=>{
+            dispatch(saveSelectPlaceList(facilityId))
+        }
     };
 };
 

@@ -33,13 +33,16 @@ class Reservoir extends React.Component {
         this.state = {
             selectBtn: 1,
             text: '',
+            editable: true,
             selectSkuSize: 0,
             dataSource: ds.cloneWithRows([]),
+            currentSkuList: []
         };
         this._switchBtn = this._switchBtn.bind(this);
         this._clearData = this._clearData.bind(this);
         this._modifyNumber = this._modifyNumber.bind(this);
         this._renderRow = this._renderRow.bind(this);
+        this._isFocused = this._isFocused.bind(this)
     }
 
     //这个地方太恶心了  是为了把系统键盘拿掉
@@ -78,8 +81,6 @@ class Reservoir extends React.Component {
 
     //修改扫描SKU数量
     _modifyNumber(item) {
-        this.showMenu();
-        this.hideMenu();
         prompt(
             '修改产品数量',
             item.sku,
@@ -87,14 +88,14 @@ class Reservoir extends React.Component {
                 {
                     text: '确定',
                     onPress: (number) => {
-                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number);
+                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number, this.state.currentSkuList);
                         this._isFocused()
                     }
                 },
                 {
                     text: '删除',
                     onPress: () => {
-                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, 0);
+                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, 0, this.state.currentSkuList);
                         this._isFocused()
                     }
                 },
@@ -109,7 +110,8 @@ class Reservoir extends React.Component {
             {
                 cancelable: false,
                 defaultValue: typeof item.stock === 'number' ? JSON.stringify(item.stock) : item.stock,
-                placeholder: '输入数量'
+                placeholder: '输入数量',
+                type: 'numeric'
             }
         );
     }
@@ -131,7 +133,7 @@ class Reservoir extends React.Component {
                 }
                 console.log('验证当前库位合法性');
                 return (
-                    this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'current')
+                    this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'current', this.props.placeState.selectPlaceList)
                 );
             case 2:
                 if (text === this.props.reservoirState.currentPositionId) {
@@ -147,7 +149,7 @@ class Reservoir extends React.Component {
                 }
                 console.log('验证目标库位合法性');
                 return (
-                    this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'target')
+                    this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'target', this.props.placeState.selectPlaceList)
                 );
             case 3:
                 console.log('验证产品合法性');
@@ -157,31 +159,84 @@ class Reservoir extends React.Component {
                     if (item.sku === text)
                         skuStock = parseInt(item.stock) + 1;
                 });
-                return this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock);
+                return this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock, this.state.currentSkuList);
         }
     }
+
+    //提交表单
+    _submit() {
+        console.log('用户提交表单');
+        const text = this.state.text;
+        this.setState({
+            text: null
+        });
+        if (text != null) {
+            this._scanning(text);
+        }
+    }
+
 
     //移库操作
     _multiStockMove() {
         console.log('移库操作');
-        const JsonArray = [];
-        const selectSkuList = this.props.reservoirState.selectSkuList;
-        for (let i = 0; i < selectSkuList.length; i++) {
-            JsonArray.push({productId: selectSkuList[i].sku, quantityMoved: selectSkuList[i].stock})
+        if (this.state.selectSkuSize === 0) {
+            Alert.alert(
+                '移库错误',
+                '没有扫到任何商品！',
+                [
+                    {text: '确定', onPress: () => console.log('用户点击了确定按钮')},
+                ],
+                {cancelable: false}
+            );
+            if (this.props.reservoirState.currentPositionId === null) {
+                this.setState({
+                    selectBtn: 1
+                })
+            } else {
+                this.setState({
+                    selectBtn: 3
+                })
+            }
+
+        } else {
+            if (this.props.reservoirState.targetPositionId == null) {
+                Alert.alert(
+                    '移库错误',
+                    '目标库位不能为空!',
+                    [
+                        {
+                            text: '确定',
+                            onPress: () => {
+                                this.setState({
+                                    selectBtn: 2
+                                })
+                            }
+                        },
+                    ],
+                    {cancelable: false}
+                );
+
+            } else {
+                const JsonArray = [];
+                const selectSkuList = this.props.reservoirState.selectSkuList;
+                for (let i = 0; i < selectSkuList.length; i++) {
+                    JsonArray.push({productId: selectSkuList[i].sku, quantityMoved: selectSkuList[i].stock})
+                }
+                Alert.alert(
+                    '移动(' + this.state.selectSkuSize + ')件',
+                    '确定移动' + this.state.selectSkuSize + '件产品从' + this.props.reservoirState.currentPositionId + '到' + this.props.reservoirState.targetPositionId + '?',
+                    [
+                        {
+                            text: '确定',
+                            onPress: () => this.props.multiStockMove(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId,
+                                this.props.reservoirState.targetPositionId, JsonArray, this.state.selectSkuSize)
+                        },
+                        {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
+                    ],
+                    {cancelable: false}
+                );
+            }
         }
-        Alert.alert(
-            '移库操作',
-            '您确定要移动？',
-            [
-                {
-                    text: '确定',
-                    onPress: () => this.props.multiStockMove(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId,
-                        this.props.reservoirState.targetPositionId, JsonArray, this.state.selectSkuSize)
-                },
-                {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
-            ],
-            {cancelable: false}
-        );
     }
 
     render() {
@@ -199,11 +254,23 @@ class Reservoir extends React.Component {
                                    placeholder={this.props.reservoirState.placeholderText}
                                    underlineColorAndroid='transparent'
                                    returnKeyLabel="完成"
-                                   keyboardType="numbers-and-punctuation"
+                                   keyboardType="default"
                                    autoFocus={true}
-                                   editable={true}
+                                   editable={this.state.editable}
+                                   multiline={false}
                                    value={this.state.text}
-                                   onChangeText={this._scanning.bind(this)}
+                                   onChangeText={(text)=> {
+                                       this.setState({
+                                           text: text
+                                       })
+                                   }}
+                                   onEndEditing={(text)=> {
+
+                                   }}
+                                   onSubmitEditing={()=> {
+                                       this._submit()
+                                   }}
+                                   onBlur={this._isFocused.bind(this)}
                                    ref="aTextInputRef"
                         />
                         <View style={styles.btnContainer}>
@@ -242,15 +309,15 @@ class Reservoir extends React.Component {
                     </View>
                     {
                         this.props.reservoirState.selectSkuList.length > 0 ?
-                            <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
-                                <ListView
-                                    dataSource={this.state.dataSource}
-                                    renderRow={this._renderRow}
-                                    renderSeparator={this._renderSeparator}
-                                    showsVerticalScrollIndicator={false}
-                                    showsHorizontalScrollIndicator={false}
-                                />
-                            </ScrollView>
+                            <ListView
+                                style={styles.list}
+                                dataSource={this.state.dataSource}
+                                renderRow={this._renderRow}
+                                renderSeparator={this._renderSeparator}
+                                showsHorizontalScrollIndicator={false}
+                                showsVerticalScrollIndicator={false}
+                                keyboardShouldPersistTaps='always'
+                            />
                             : null
                     }
                 </View>
@@ -281,10 +348,21 @@ class Reservoir extends React.Component {
 
     //切换功能按钮
     _switchBtn(currentBtn) {
-        this._isFocused();
-        this.setState({
-            selectBtn: currentBtn,
-        })
+        if (this.props.reservoirState.currentPositionId == null) {
+            Alert.alert(
+                '原位置不能为空',
+                '请先扫描或输入原位置标识',
+                [
+                    {text: '确定', onPress: () => console.log('用户点击了确定按钮')},
+                ],
+                {cancelable: false}
+            );
+        } else {
+            this._isFocused();
+            this.setState({
+                selectBtn: currentBtn,
+            })
+        }
     }
 
     //清空数据
@@ -302,7 +380,13 @@ class Reservoir extends React.Component {
 
     //文本框获得焦点
     _isFocused() {
-        this.refs.aTextInputRef.focus()
+        console.log('键盘获取焦点');
+        const that = this;
+        setTimeout(function () {
+            that.refs.aTextInputRef.focus();
+            that.showMenu();
+            that.hideMenu();
+        }, 500);
     }
 
     //键盘物理返回事件
@@ -319,8 +403,14 @@ class Reservoir extends React.Component {
 
     //键盘弹出事件响应
     keyboardDidShowHandler(event) {
-        this.showMenu();
-        this.hideMenu();
+        // this.showMenu();
+        // this.hideMenu();
+    }
+
+    //监听键盘收起事件
+    _keyboardDidHide() {
+        console.log('键盘收起了');
+        //this._isFocused()
     }
 
     componentDidMount() {
@@ -331,6 +421,7 @@ class Reservoir extends React.Component {
             //监听键盘弹出事件
             this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',
                 this.keyboardDidShowHandler.bind(this));
+            this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
         });
     }
 
@@ -344,6 +435,7 @@ class Reservoir extends React.Component {
         //卸载键盘弹出事件监听
         if (this.keyboardDidShowListener != null) {
             this.keyboardDidShowListener.remove();
+            this.keyboardDidHideListener.remove();
         }
     }
 
@@ -355,9 +447,14 @@ class Reservoir extends React.Component {
             number = number + parseInt(item.stock)
         });
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        const data = nextProps.reservoirState.selectSkuList;
         this.setState({
-            dataSource: ds.cloneWithRows(nextProps.reservoirState.selectSkuList),
-            selectSkuSize: number
+            dataSource: ds.cloneWithRows(data),
+            selectSkuSize: number,
+            selectBtn: nextProps.reservoirState.selectBtn,
+            editable: nextProps.reservoirState.editable,
+            currentSkuList: nextProps.reservoirState.currentSkuList,
+            text: nextProps.reservoirState.text
         })
     }
 }

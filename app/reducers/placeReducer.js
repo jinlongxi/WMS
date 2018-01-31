@@ -6,6 +6,7 @@ import * as TYPES from '../constants/ActionTypes';
 const initialState = {
     placeList: null,
     isLoading: true,
+    selectPlaceList: null
 };
 
 export default function place(state = initialState, action) {
@@ -28,6 +29,11 @@ export default function place(state = initialState, action) {
                 ...state,
                 isLoading: false,
                 status: 'error',
+            };
+        case TYPES.SAVE_SELECT_PLACELIST:
+            return {
+                ...state,
+                selectPlaceList: action.selectPlaceList
             };
         default:
             return state;

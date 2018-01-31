@@ -20,19 +20,21 @@ import {
 
 const mapStateToProps = (state) => {
     return {
-        reservoirState: state.reservoirStore
+        reservoirState: state.reservoirStore,
+        placeState:state.placeStore
     }
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
         //验证库位合法性
-        verifyFacilityLocation: (facilityId, locationSeqId, locationType)=> {
-            dispatch(verifyFacilityLocation(facilityId, locationSeqId, locationType))
+        verifyFacilityLocation: (facilityId, locationSeqId, locationType,selectPlaceList)=> {
+            dispatch(verifyFacilityLocation(facilityId, locationSeqId, locationType,selectPlaceList))
         },
         //验证产品合法性
-        verifyProduct: (facilityId, locationSeqId, sku, stock)=> {
-            dispatch(verifyProduct(facilityId, locationSeqId, sku, stock))
+        verifyProduct: (facilityId, locationSeqId, sku, stock,currentSkuList)=> {
+            console.log(facilityId, locationSeqId, sku, stock,currentSkuList);
+            dispatch(verifyProduct(facilityId, locationSeqId, sku, stock,currentSkuList))
         },
         //清空数据
         clearData: ()=> {
