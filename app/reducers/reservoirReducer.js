@@ -63,6 +63,7 @@ export default function reservoir(state = initialState, action) {
         case TYPES.ADD_SELECT_SKU_INFO:
             return {
                 ...state,
+                selectBtn: 3,
                 //selectSkuSize: state.selectSkuSize + 1,
                 //placeholderText: action.sku,
                 selectSkuList: judgment(state.selectSkuList, action)
@@ -74,11 +75,12 @@ export default function reservoir(state = initialState, action) {
             };
         case TYPES.CLEAR_SELECT_DATA:
             return {
-                currentPositionId: null,
+                ...state,
+                currentPositionId: action.currentPositionId,
                 targetPositionId: null,
                 selectSkuList: [],
                 selectSkuSize: 0,
-                selectBtn: 1,
+                selectBtn: action.selectBtn,
                 placeholderText: '扫描'
             };
         case TYPES.DISABLE_INPUT:

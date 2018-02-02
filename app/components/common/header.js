@@ -3,6 +3,7 @@
  */
 import React, {Component} from 'react';
 import Login from '../../containers/loginContainer';
+import Icon from './left_icon'
 import {
     AppRegistry,
     StyleSheet,
@@ -12,15 +13,13 @@ import {
     TouchableOpacity
 } from 'react-native';
 
-var Icon = require('./left_icon');
-
-var Header = React.createClass({
-    render: function () {
-        var headContent = this.props.initObj;
+class Header extends React.Component {
+    render() {
+        const headContent = this.props.initObj;
         return (
             <View style={styles.header}>
                 <View style={styles.title_container}>
-                    <TouchableOpacity style={styles.left_btn} onPress={this._pop}>
+                    <TouchableOpacity style={styles.left_btn} onPress={this._pop.bind(this)}>
                         <Icon/>
                         <Text style={styles.btn_text}>{headContent.backName}</Text>
                     </TouchableOpacity>
@@ -28,8 +27,9 @@ var Header = React.createClass({
                 </View>
             </View>
         )
-    },
-    _pop: function () {
+    }
+
+    _pop() {
         if (this.props.initObj.backType === 'logOut') {
             console.log('退出登录');
             this.props.loginOut();
@@ -45,9 +45,9 @@ var Header = React.createClass({
             this.props.navigator.pop();
         }
     }
-});
+}
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
     header: {
         height: 50,
         backgroundColor: "rgb(55, 70, 90)",
@@ -82,4 +82,4 @@ var styles = StyleSheet.create({
     }
 });
 
-module.exports = Header;
+export default Header

@@ -18,7 +18,6 @@ const Sound_API = {
     // },
     playSoundBundleSuccess:()=>{
         const s = new Sound('pass.mp3', Sound.MAIN_BUNDLE, (e) => {
-            console.log('播放声音');
             if (e) {
                 console.log('error', e);
             } else {
@@ -33,7 +32,6 @@ const Sound_API = {
             if (e) {
                 console.log('error', e);
             } else {
-                console.log('播放声音');
                 //s.setSpeed(1);
                 console.log('duration', s.getDuration());
                 s.play(() => s.release()); // Release when it's done so we're not using up resources

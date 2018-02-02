@@ -23,7 +23,7 @@ class EmptyPage extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                    <Text style={styles.title}>您还没有相关数据！</Text>
+                <Text style={styles.title}>您还没有相关数据！</Text>
             </View>
         );
     }
@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: 20,
-        justifyContent:'center',
-        alignItems:'center'
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     title: {
         textAlign: 'center'

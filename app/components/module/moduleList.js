@@ -33,12 +33,14 @@ class moduleList extends Component {
     }
 
     _renderRow(item) {
-        return <TouchableOpacity style={styles.item} onPress={this._selectModule.bind(this, item)}>
-            <Text
-                style={[{flex: 1,}, styles.txt,]}>{item.text}
-            </Text>
-            <Icon/>
-        </TouchableOpacity>
+        return (
+            <TouchableOpacity style={styles.item} onPress={this._selectModule.bind(this, item)}>
+                <Text
+                    style={[{flex: 1,}, styles.txt,]}>{item.text}
+                </Text>
+                <Icon/>
+            </TouchableOpacity>
+        )
     };
 
     _renderSeparator(sectionID, rowID) {
@@ -88,7 +90,6 @@ class moduleList extends Component {
     onBackAndroid = () => {
         const {navigator} = this.props;
         const routers = navigator.getCurrentRoutes();
-        console.log('当前路由长度：' + routers.length);
         if (routers.length > 1) {
             navigator.pop();
             return true;//接管默认行为

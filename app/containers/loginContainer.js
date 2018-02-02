@@ -20,7 +20,7 @@ const mapStateToProps = (state) => {
 };
 const mapDispatchToProps = (dispatch) => {
     return {
-        //添加当前库位信息
+        //用户登录
         appLogin: (username, password)=> {
             dispatch(appLogin(username, password))
         },

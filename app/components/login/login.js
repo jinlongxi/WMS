@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import Header from '../common/headerBar';
 import Place from '../../containers/placeContainer';
-
+import DeviceStorage from '../../utils/deviceStorage';
 import {
     AppRegistry,
     StyleSheet,
@@ -23,7 +23,7 @@ class Login extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            radioSelect: false,
+            radioSelect: true,
             username: 'liyufeng',
             password: 'fbcf321b45e1a457',
         };
@@ -37,15 +37,16 @@ class Login extends React.Component {
                 <View style={styles.form}>
                     <Text style={styles.header}>用户登录</Text>
                     <View style={styles.body}>
-                        <TextInput style={styles.input} value={this.state.username} placeholder='用户名'
-                                   placeholderTextColor="#495057" onChangeText={(text)=> {
-                            this.setState({
-                                username: text
-                            })
-                        }}
+                        <TextInput style={[styles.input, {borderBottomWidth: 0}]} value={this.state.username}
+                                   placeholder='用户名'
+                                   onChangeText={(text)=> {
+                                       this.setState({
+                                           username: text
+                                       })
+                                   }}
                                    underlineColorAndroid='transparent'/>
                         <TextInput style={styles.input} value={this.state.password} secureTextEntry={true}
-                                   placeholder='密码' placeholderTextColor="#495057" onChangeText={(text)=> {
+                                   placeholder='密码' onChangeText={(text)=> {
                             this.setState({
                                 password: text
                             })
@@ -73,6 +74,13 @@ class Login extends React.Component {
         const username = this.state.username;
         const password = this.state.password;
         this.props.appLogin(username, password);
+        //保存用户名密码
+        DeviceStorage.save('username', username);
+        if (this.state.radioSelect) {
+            DeviceStorage.save('password', password)
+        } else {
+            DeviceStorage.delete('password')
+        }
     }
 
     componentWillMount() {
@@ -86,6 +94,22 @@ class Login extends React.Component {
                 })
             }
         }
+
+        //取本地数据中的用户名密码
+        DeviceStorage.get('username').then((username)=> {
+            if (username != null) {
+                this.setState({
+                    username: username
+                })
+            }
+        });
+        DeviceStorage.get('password').then((password)=> {
+            if (password != null) {
+                this.setState({
+                    password: password
+                })
+            }
+        })
     }
 
     componentWillReceiveProps(nextProps) {
@@ -95,7 +119,6 @@ class Login extends React.Component {
                 navigator.push({
                     name: 'Place',
                     component: Place,
-                    params: {},
                 })
             }
         }

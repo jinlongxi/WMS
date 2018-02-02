@@ -38,7 +38,6 @@ class Place extends React.Component {
 
     //当前选中项
     onSelect(index, value) {
-        console.log(index, value);
         this.setState({
             selectId: value
         })
@@ -90,7 +89,6 @@ class Place extends React.Component {
 
     //进入选择模块
     _selectModule() {
-        //this.props.saveSelectPlaceList(this.state.selectId.facilityId)//缓存选中场所全部库位
         if (this.state.selectId != null) {
             const {navigator} = this.props;
             if (navigator) {

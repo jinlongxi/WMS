@@ -10,14 +10,12 @@ import DeviceStorage from '../utils/deviceStorage';
 export function appLogin(username, password) {
     return (dispatch) => {
 
-        DeviceStorage.save('userInfo', password);
         dispatch({'type': TYPES.APP_LOGIN_DOING});
         const url = ServiceURl.wmsManager + 'login';
 
         let formData = new FormData();
         formData.append("login.username", username);
         formData.append("login.password", password);
-
         Request.postRequest(url, formData, function (response) {
             //console.log(JSON.stringify(response));
             let {userLogin:userLogin}=response;

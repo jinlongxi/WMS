@@ -14,7 +14,9 @@ import {
     AppRegistry,
     StyleSheet,
     Text,
-    View
+    View,
+    NetInfo,
+    ToastAndroid
 } from 'react-native';
 
 class App extends Component {
@@ -34,13 +36,44 @@ class App extends Component {
     componentWillMount() {
         DeviceStorage.get('loginStatus').then((loginStatus)=> {
             if (loginStatus === 'IsLogged') {
-                console.log('用户已登录');
                 this.props.judgeLogin(true)
             } else {
-                console.log('用户未登录');
                 this.props.judgeLogin(false)
             }
         })
+    }
+
+
+    _handleFirstConnectivityChange(reach) {
+        switch (reach) {
+            case 'WIFI': {
+                return ToastAndroid.showWithGravity('你正在使用WIFI链接互联网,请确保网络链接正常', ToastAndroid.SHORT, ToastAndroid.CENTER)
+            }
+            case 'NONE': {
+                return ToastAndroid.showWithGravity('没有连接网络，请确认网络环境', ToastAndroid.SHORT, ToastAndroid.CENTER)
+            }
+            case 'CELL':{
+                return ToastAndroid.showWithGravity('你正在使用移动互联网', ToastAndroid.SHORT, ToastAndroid.CENTER)
+            }
+            case 'UNKNOWN':{
+                return ToastAndroid.showWithGravity('发生错误，网络状况不可知 ', ToastAndroid.SHORT, ToastAndroid.CENTER)
+            }
+        }
+
+    }
+
+    componentDidMount() {
+        NetInfo.addEventListener(
+            'change',
+            this._handleFirstConnectivityChange
+        );
+    }
+
+    componentWillUnmount() {
+        NetInfo.removeEventListener(
+            'change',
+            this._handleFirstConnectivityChange
+        );
     }
 }
 

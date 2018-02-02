@@ -12,16 +12,15 @@ import {
     View,
 } from 'react-native';
 
-var Icon = React.createClass({
-    render: function () {
+class Icon extends React.Component {
+    render() {
         return (
             <View style={styles.go}></View>
         )
     }
+}
 
-});
-
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
     go: {
         width: 10,
         height: 10,
@@ -33,4 +32,4 @@ var styles = StyleSheet.create({
     }
 });
 
-module.exports = Icon;
+export default Icon

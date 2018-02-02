@@ -6,6 +6,7 @@ import Header from './reservoirHeader';
 import Icon from '../common/icon_enter';
 import prompt from 'react-native-prompt-android';
 import Menu, {MenuItem} from 'react-native-material-menu';
+import Util from '../../utils/util';
 import {
     AppRegistry,
     StyleSheet,
@@ -24,7 +25,8 @@ import {
     Platform,
     Keyboard,
     InteractionManager,
-    AlertIOS
+    AlertIOS,
+    PanResponder
 } from 'react-native';
 class Reservoir extends React.Component {
     constructor(props) {
@@ -36,8 +38,12 @@ class Reservoir extends React.Component {
             editable: true,
             selectSkuSize: 0,
             dataSource: ds.cloneWithRows([]),
-            currentSkuList: []
+            currentSkuList: [],
+            buttonViewHeight: null,
+            buttonHidden: 0
         };
+
+
         this._switchBtn = this._switchBtn.bind(this);
         this._clearData = this._clearData.bind(this);
         this._modifyNumber = this._modifyNumber.bind(this);
@@ -45,7 +51,7 @@ class Reservoir extends React.Component {
         this._isFocused = this._isFocused.bind(this)
     }
 
-    //这个地方太恶心了  是为了把系统键盘拿掉
+    //这个地方太恶心了  是为了挤掉系统键盘后续优化
     menu = null;
     setMenuRef = ref => {
         this.menu = ref;
@@ -57,9 +63,10 @@ class Reservoir extends React.Component {
         this.menu.show();
     };
 
-    _renderRow(item) {
+    _renderRow(item, sectionID, rowID, highlightRow) {
         return (
             <TouchableOpacity style={styles.item} onPress={this._modifyNumber.bind(this, item)}>
+                <Text style={[styles.txt,]}>({parseInt(rowID) + 1}) </Text>
                 <Text style={[{flex: 1,}, styles.txt,]}>{item.sku}</Text>
                 <Text style={{fontWeight: 'bold'}}>{item.stock}</Text>
                 <Icon/>
@@ -102,7 +109,6 @@ class Reservoir extends React.Component {
                 {
                     text: '取消',
                     onPress: () => {
-                        console.log('Cancel Pressed');
                         this._isFocused()
                     }
                 },
@@ -131,7 +137,6 @@ class Reservoir extends React.Component {
                     );
                     return
                 }
-                console.log('验证当前库位合法性');
                 return (
                     this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'current', this.props.placeState.selectPlaceList)
                 );
@@ -141,18 +146,16 @@ class Reservoir extends React.Component {
                         '扫描错误',
                         '原位置和目标位置相同',
                         [
-                            {text: '确定', onPress: () => console.log('Ask me later pressed')},
+                            {text: '确定', onPress: () => console.log('点击了确定')},
                         ],
                         {cancelable: false}
                     );
                     return
                 }
-                console.log('验证目标库位合法性');
                 return (
                     this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'target', this.props.placeState.selectPlaceList)
                 );
             case 3:
-                console.log('验证产品合法性');
                 let skuList = this.props.reservoirState.selectSkuList;
                 let skuStock = 1;
                 skuList.map((item)=> {
@@ -165,7 +168,6 @@ class Reservoir extends React.Component {
 
     //提交表单
     _submit() {
-        console.log('用户提交表单');
         const text = this.state.text;
         this.setState({
             text: null
@@ -175,10 +177,8 @@ class Reservoir extends React.Component {
         }
     }
 
-
     //移库操作
     _multiStockMove() {
-        console.log('移库操作');
         if (this.state.selectSkuSize === 0) {
             Alert.alert(
                 '移库错误',
@@ -241,14 +241,14 @@ class Reservoir extends React.Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <View style={styles.container} {...this._panResponder.panHandlers} >
                 <Header initObj={{
                     backName: '选择模块',
                     barTitle: '商品库位移动',
                     barTitle_small: this.props.selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
-                    <View style={styles.form}>
+                    <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
                         <TextInput style={styles.input}
                                    autoCapitalize='characters'
                                    placeholder={this.props.reservoirState.placeholderText}
@@ -380,7 +380,6 @@ class Reservoir extends React.Component {
 
     //文本框获得焦点
     _isFocused() {
-        console.log('键盘获取焦点');
         const that = this;
         setTimeout(function () {
             that.refs.aTextInputRef.focus();
@@ -393,7 +392,6 @@ class Reservoir extends React.Component {
     onBackAndroid = () => {
         const {navigator} = this.props;
         const routers = navigator.getCurrentRoutes();
-        console.log('当前路由长度：' + routers.length);
         if (routers.length > 1) {
             navigator.pop();
             return true;//接管默认行为
@@ -403,14 +401,68 @@ class Reservoir extends React.Component {
 
     //键盘弹出事件响应
     keyboardDidShowHandler(event) {
-        // this.showMenu();
-        // this.hideMenu();
+        console.log('键盘弹起了');
     }
 
     //监听键盘收起事件
     _keyboardDidHide() {
         console.log('键盘收起了');
-        //this._isFocused()
+    }
+
+    componentWillMount() {
+        this._panResponder = PanResponder.create({
+            // 要求成为响应者：
+            onStartShouldSetPanResponder: (evt, gestureState) => true,
+            onStartShouldSetPanResponderCapture: (evt, gestureState) => false,
+            onMoveShouldSetPanResponder: (evt, gestureState) => false,
+            onMoveShouldSetPanResponderCapture: (evt, gestureState) => false,
+
+            onPanResponderGrant: (evt, gestureState) => {
+                // 开始手势操作。给用户一些视觉反馈，让他们知道发生了什么事情！
+                //console.log(evt, gestureState.moveX,gestureState.moveY)
+                // gestureState.{x,y}0 现在会被设置为0
+            },
+            onPanResponderMove: (evt, gestureState) => {
+                // 最近一次的移动距离为gestureState.move{X,Y}
+                //console.log('最近一次的移动距离', evt, gestureState.moveX, gestureState.moveY);
+                if (gestureState.moveY - this.state.buttonHidden === gestureState.moveY) {
+                    this.setState({
+                        buttonHidden: gestureState.moveY
+                    });
+                }
+                // 从成为响应者开始时的累计手势移动距离为gestureState.d{x,y}
+            },
+            onPanResponderTerminationRequest: (evt, gestureState) => true,
+            onPanResponderRelease: (evt, gestureState) => {
+                // 用户放开了所有的触摸点，且此时视图已经成为了响应者。
+                console.log(gestureState.moveY - this.state.buttonHidden);
+                if (gestureState.moveY - this.state.buttonHidden < -Util.windowSize.height * 0.25) {
+                    this.setState({
+                        buttonViewHeight: 0,
+                        buttonHidden: 0
+                    })
+                } else if (gestureState.moveY - this.state.buttonHidden > Util.windowSize.height * 0.15) {
+                    this.setState({
+                        buttonViewHeight: null,
+                        buttonHidden: 0
+                    })
+                } else {
+                    this.setState({
+                        buttonViewHeight: null,
+                        buttonHidden: 0
+                    })
+                }
+                // 一般来说这意味着一个手势操作已经成功完成。
+            },
+            onPanResponderTerminate: (evt, gestureState) => {
+                // 另一个组件已经成为了新的响应者，所以当前手势将被取消。
+            },
+            onShouldBlockNativeResponder: (evt, gestureState) => {
+                // 返回一个布尔值，决定当前组件是否应该阻止原生组件成为JS响应者
+                // 默认返回true。目前暂时只支持android。
+                return true;
+            },
+        });
     }
 
     componentDidMount() {
@@ -441,12 +493,12 @@ class Reservoir extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         const selectSkuSize = nextProps.reservoirState.selectSkuList;
-        console.log(nextProps.reservoirState.selectSkuList.length);
         let number = 0;
         selectSkuSize.map((item)=> {
             number = number + parseInt(item.stock)
         });
-        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+
+        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const data = nextProps.reservoirState.selectSkuList;
         this.setState({
             dataSource: ds.cloneWithRows(data),
@@ -469,7 +521,7 @@ const styles = StyleSheet.create({
     },
     form: {
         backgroundColor: '#fff',
-        flexDirection: 'column'
+        flexDirection: 'column',
     },
     input: {
         width: '100%',

@@ -16,7 +16,7 @@ export function getPlaceList() {
         DeviceStorage.get('userInfo').then((userInfo)=> {
             console.log(userInfo);
             let InputFields = {
-                partyId: 'dengzewen',
+                partyId: 'dengzewen',                   //这个地方写死了dengwenwen要注意！！！！！！！！！！！！！
                 //roleTypeId: 'MANAGER'
             };
             let formData = new FormData();
@@ -48,25 +48,29 @@ export function getPlaceList() {
 //缓存选中场所全部库位信息到状态数上
 export function saveSelectPlaceList(facilityId) {
     return (dispatch) => {
+
         const url = ServiceURl.wmsManager + 'find';
         DeviceStorage.get('userInfo').then((userInfo)=> {
-            console.log(userInfo,facilityId);
+            console.log(userInfo, facilityId);
             let InputFields = {
                 facilityId: facilityId,
-                locationTypeEnumId: 'FLT_PICKLOC'
+                //locationTypeEnumId: 'FLT_PICKLOC'
             };
             let formData = new FormData();
             formData.append("login.username", userInfo.username);
             formData.append("login.password", userInfo.password);
             formData.append("entityName", 'FacilityLocation');
             formData.append("noConditionFind", 'Y');
+            formData.append("viewIndex", 0);
+            formData.append("viewSize", 999);
             formData.append("inputFields", JSON.stringify(InputFields));
+            console.log(formData);
             Request.postRequest(url, formData, function (response) {
                 //console.log(JSON.stringify(response));
                 const {list:list}=response;
                 dispatch({'type': TYPES.SAVE_SELECT_PLACELIST, selectPlaceList: list});
             }, function (err) {
-                alert('缓存选中场所库位列表失败')
+                alert('请求服务器失败')
             });
         })
     };

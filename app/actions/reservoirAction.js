@@ -7,7 +7,6 @@ import ServiceURl from '../utils/service';
 import DeviceStorage from '../utils/deviceStorage';
 import Sound from '../utils/sound';
 import * as TYPES from '../constants/ActionTypes';
-let increaseStock = 1;
 
 //添加当前库位ID
 export const addCurrentPosition = (positionId) => {
@@ -34,6 +33,16 @@ export const addSelectSku = (sku, stock) => {
     }
 };
 
+//清空数据
+export const clearData = (currentPositionId, selectBtn) => {
+    console.log('asdf+>' + currentPositionId, selectBtn);
+    return {
+        type: 'CLEAR_SELECT_DATA',
+        currentPositionId: currentPositionId,
+        selectBtn: selectBtn
+    }
+};
+
 //删除指定SKU
 export const deleteSelectSku = (sku) => {
     return {
@@ -55,12 +64,10 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, 
     return (dispatch) => {
 
         //通过本地状态树验证库位合法性
-        let facilityLocation = false;
-        selectPlaceList.map((item)=> {
-            if (item.locationSeqId === locationSeqId) {
-                facilityLocation = true
-            }
+        let facilityLocation = selectPlaceList.some((item)=> {
+            return item.locationSeqId === locationSeqId
         });
+
         if (facilityLocation) {
             if (locationType === 'current') {
                 Sound.playSoundBundleSuccess();
@@ -143,18 +150,22 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
         DeviceStorage.get('userInfo').then((userInfo)=> {
             let InputFields = {
                 facilityId: facilityId,
-                locationSeqId: locationSeqId
+                locationSeqId: locationSeqId,
+                quantityOnHandTotal: 0,
+                quantityOnHandTotal_op: 'greaterThan'
             };
             let formData = new FormData();
             formData.append("login.username", userInfo.username);
             formData.append("login.password", userInfo.password);
             formData.append("entityName", 'InventoryItem');
             formData.append("noConditionFind", 'Y');
+            formData.append("viewIndex", 0);
+            formData.append("viewSize", 999);
             formData.append("inputFields", JSON.stringify(InputFields));
             Request.postRequest(url, formData, function (response) {
                 const {list:list}=response;
                 dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
-                console.log('当前原位置上全部SKU:' + JSON.stringify(response));
+                //console.log('当前原位置上全部SKU:' + JSON.stringify(response));
             }, function (err) {
                 alert('缓存原位置上的SKU列表失败')
             });
@@ -165,18 +176,17 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
 //判断产品合法性
 export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuList) => {
     return (dispatch) => {
+
         //通过本地状态树验证产品合法性
-        let effective = false;
         let effectiveSku;
-        currentSkuList.map((item)=> {
+        let effective = currentSkuList.some((item)=> {
             if (item.productId === sku) {
-                effective = true;
                 effectiveSku = item;
             }
+            return item.productId === sku
         });
-
+        console.log(effective);
         if (effective) {
-            console.log(effectiveSku);
             if (effectiveSku.quantityOnHandTotal < stock) {
                 Sound.playSoundBundleError();
                 Alert.alert(
@@ -185,7 +195,7 @@ export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuL
                     [
                         {
                             text: '确定',
-                            onPress: ()=>{
+                            onPress: ()=> {
                                 console.log('用户点击了确定按钮');
                             }
                         },
@@ -208,12 +218,11 @@ export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuL
                     {cancelable: false}
                 );
             } else {
+                console.log('11123123123123123>++++')
                 Sound.playSoundBundleSuccess();
                 if (stock === 0) {
-                    console.log('删除SKU');
                     dispatch(deleteSelectSku(sku));
                 } else {
-                    console.log('添加或修改SKU');
                     dispatch(addSelectSku(sku, stock));
                 }
             }
@@ -296,16 +305,10 @@ export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuL
     };
 };
 
-//清空数据
-export const clearData = () => {
-    return {
-        type: 'CLEAR_SELECT_DATA',
-    }
-};
-
 //移库
 export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, productQuantity, selectSkuSize) => {
     return (dispatch) => {
+
         const url = ServiceURl.wmsManager + 'multiStockMove';
         DeviceStorage.get('userInfo').then((userInfo)=> {
             let formData = new FormData();
@@ -331,10 +334,9 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
                                 text: '确定',
                                 onPress: () => {
                                     console.log('点击确定');
-                                    dispatch(clearData())
+                                    dispatch(clearData(locationSeqId, 3))
                                 }
                             },
-                            //{text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
                         ],
                         {cancelable: false}
                     );
