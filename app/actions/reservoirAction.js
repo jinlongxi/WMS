@@ -162,6 +162,7 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
             formData.append("viewIndex", 0);
             formData.append("viewSize", 999);
             formData.append("inputFields", JSON.stringify(InputFields));
+            console.log(formData);
             Request.postRequest(url, formData, function (response) {
                 const {list:list}=response;
                 dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
@@ -218,7 +219,6 @@ export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuL
                     {cancelable: false}
                 );
             } else {
-                console.log('11123123123123123>++++')
                 Sound.playSoundBundleSuccess();
                 if (stock === 0) {
                     dispatch(deleteSelectSku(sku));

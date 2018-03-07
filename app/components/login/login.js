@@ -24,8 +24,8 @@ class Login extends React.Component {
         super(props);
         this.state = {
             radioSelect: true,
-            username: 'liyufeng',
-            password: 'fbcf321b45e1a457',
+            username: null,
+            password: null,
         };
         this.appLogin = this.appLogin.bind(this);
     }
@@ -41,7 +41,8 @@ class Login extends React.Component {
                                    placeholder='用户名'
                                    onChangeText={(text)=> {
                                        this.setState({
-                                           username: text
+                                           username: text,
+                                           password: null
                                        })
                                    }}
                                    underlineColorAndroid='transparent'/>

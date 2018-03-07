@@ -3,7 +3,8 @@
  */
 
 
-const BaseURL = 'http://121.199.20.78:8080/rubikcube/control/';   //素然测试服务器
+const BaseURL = 'https://wms.zuczug.com/rubikcube/control/';   //素然正式服务器
+//const BaseURL = 'http://121.199.20.78:8080/rubikcube/control/';   //素然测试服务器
 
 const YouPing_API = {
     //测试服务器

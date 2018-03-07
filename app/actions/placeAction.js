@@ -16,7 +16,7 @@ export function getPlaceList() {
         DeviceStorage.get('userInfo').then((userInfo)=> {
             console.log(userInfo);
             let InputFields = {
-                partyId: 'dengzewen',                   //这个地方写死了dengwenwen要注意！！！！！！！！！！！！！
+                partyId: userInfo.partyId,
                 //roleTypeId: 'MANAGER'
             };
             let formData = new FormData();

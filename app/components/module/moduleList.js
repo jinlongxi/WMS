@@ -9,6 +9,7 @@ import Data from './data';
 import Header from '../common/header';
 import Icon from '../common/icon_enter';
 import Reservoir from '../../containers/reservoirContainer';
+import VerifyPick from '../../containers/verifyPickContainer';
 import {
     StyleSheet,
     View,
@@ -21,7 +22,6 @@ import {
     BackHandler,
     InteractionManager
 } from 'react-native';
-
 class moduleList extends Component {
     constructor(props) {
         super(props);
@@ -57,12 +57,24 @@ class moduleList extends Component {
 
     //选中模块
     _selectModule(item) {
+        console.log(item.type);
         if (item.type === 'StockMove') {
             const {navigator} = this.props;
             if (navigator) {
                 navigator.push({
                     name: 'Reservoir',
                     component: Reservoir,
+                    params: {
+                        selectStore: this.props.selectStore
+                    },
+                })
+            }
+        } else if (item.type === 'VerifyPick') {
+            const {navigator} = this.props;
+            if (navigator) {
+                navigator.push({
+                    name: 'VerifyPick',
+                    component: VerifyPick,
                     params: {
                         selectStore: this.props.selectStore
                     },
