@@ -76,16 +76,16 @@
         "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_list_menu_item_radio.xml"
     },
     {
-        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/fps_view.xml",
-        "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.48.2/res/layout/fps_view.xml"
+        "merged": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_screen_simple.xml",
+        "source": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_screen_simple.xml"
     },
     {
         "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_alert_dialog_material.xml",
         "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_alert_dialog_material.xml"
     },
     {
-        "merged": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_screen_simple.xml",
-        "source": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_screen_simple.xml"
+        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/fps_view.xml",
+        "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.48.2/res/layout/fps_view.xml"
     },
     {
         "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_alert_dialog_material.xml",
@@ -116,36 +116,36 @@
         "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_action_bar_title_item.xml"
     },
     {
-        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_popup_menu_item_layout.xml",
-        "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_popup_menu_item_layout.xml"
-    },
-    {
         "merged": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/res/merged/debug/layout/notification_template_big_media.xml",
         "source": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/notification_template_big_media.xml"
+    },
+    {
+        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_popup_menu_item_layout.xml",
+        "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_popup_menu_item_layout.xml"
     },
     {
         "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_screen_content_include.xml",
         "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_screen_content_include.xml"
     },
     {
-        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_action_bar_title_item.xml",
-        "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_action_bar_title_item.xml"
-    },
-    {
-        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/layout/select_dialog_multichoice_material.xml",
-        "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/select_dialog_multichoice_material.xml"
-    },
-    {
-        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_action_menu_item_layout.xml",
-        "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_action_menu_item_layout.xml"
+        "merged": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/res/merged/debug/layout/support_simple_spinner_dropdown_item.xml",
+        "source": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/support_simple_spinner_dropdown_item.xml"
     },
     {
         "merged": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_list_menu_item_radio.xml",
         "source": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_list_menu_item_radio.xml"
     },
     {
-        "merged": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/res/merged/debug/layout/support_simple_spinner_dropdown_item.xml",
-        "source": "/Users/jinlongxi/.Trash/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/support_simple_spinner_dropdown_item.xml"
+        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_action_menu_item_layout.xml",
+        "source": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_action_menu_item_layout.xml"
+    },
+    {
+        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/layout/select_dialog_multichoice_material.xml",
+        "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/select_dialog_multichoice_material.xml"
+    },
+    {
+        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/layout/abc_action_bar_title_item.xml",
+        "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_action_bar_title_item.xml"
     },
     {
         "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/layout/notification_template_big_media_narrow.xml",

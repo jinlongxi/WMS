@@ -9,7 +9,7 @@ module.exports = [
     },
     {
         _id: 2,
-        text: '验证分拣',
+        text: '订单分拣',
         type: 'VerifyPick'
     },
     {

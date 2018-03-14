@@ -3,6 +3,7 @@ package com.wms;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.zmxv.RNSound.RNSoundPackage;
 import im.shimo.react.prompt.RNPromptPackage;
 import com.github.kevinejohn.keyevent.KeyEventPackage;
 
@@ -26,6 +27,7 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+            new RNSoundPackage(),
             new RNPromptPackage(),
             new KeyEventPackage()
             );

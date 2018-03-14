@@ -33,13 +33,17 @@ export const addSelectSku = (sku, stock) => {
     }
 };
 
+//加载动画
+export const loadingWait = () => {
+    return {
+        type: 'LOADING',
+    }
+};
+
 //清空数据
-export const clearData = (currentPositionId, selectBtn) => {
-    console.log('asdf+>' + currentPositionId, selectBtn);
+export const clearData = () => {
     return {
         type: 'CLEAR_SELECT_DATA',
-        currentPositionId: currentPositionId,
-        selectBtn: selectBtn
     }
 };
 
@@ -146,6 +150,7 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, 
 //缓存选中位置全部SKu信息到状态数上
 export function saveCurrentSkuList(facilityId, locationSeqId) {
     return (dispatch) => {
+        dispatch(loadingWait());
         const url = ServiceURl.wmsManager + 'find';
         DeviceStorage.get('userInfo').then((userInfo)=> {
             let InputFields = {
@@ -162,7 +167,6 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
             formData.append("viewIndex", 0);
             formData.append("viewSize", 999);
             formData.append("inputFields", JSON.stringify(InputFields));
-            console.log(formData);
             Request.postRequest(url, formData, function (response) {
                 const {list:list}=response;
                 dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
@@ -175,17 +179,21 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
 }
 
 //判断产品合法性
-export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuList) => {
+export const verifyProduct = (facilityId, locationSeqId, sku, stock, verifySkuList) => {
+    console.log(verifySkuList);
     return (dispatch) => {
-
         //通过本地状态树验证产品合法性
         let effectiveSku;
-        let effective = currentSkuList.some((item)=> {
-            if (item.productId === sku) {
-                effectiveSku = item;
-            }
-            return item.productId === sku
-        });
+        let skuFirstCharAt = sku.slice(0, 3);
+        let effective = false;
+        if (verifySkuList.get(skuFirstCharAt)) {
+            effective = verifySkuList.get(skuFirstCharAt).some((item)=> {
+                if (item.productId === sku) {
+                    effectiveSku = item;
+                }
+                return item.productId === sku
+            });
+        }
         console.log(effective);
         if (effective) {
             if (effectiveSku.quantityOnHandTotal < stock) {
@@ -347,4 +355,13 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
         })
     };
 };
+
+//导入全部SKU
+export const importAllSku = (skuList) => {
+    return {
+        type: 'IMPORT_ALL_SKU',
+        skuList,
+    }
+};
+
 

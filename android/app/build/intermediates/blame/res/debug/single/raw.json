@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/raw/pass.mp3",
+        "source": "/Users/jinlongxi/workspace/WMS/android/app/src/main/res/raw/pass.mp3"
+    },
+    {
+        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/raw/pass.mp3",
+        "source": "/Users/jinlongxi/WMS/android/app/src/main/res/raw/pass.mp3"
+    },
+    {
+        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/debug/raw/error.mp3",
+        "source": "/Users/jinlongxi/WMS/android/app/src/main/res/raw/error.mp3"
+    },
+    {
+        "merged": "/Users/jinlongxi/workspace/WMS/android/app/build/intermediates/res/merged/debug/raw/error.mp3",
+        "source": "/Users/jinlongxi/workspace/WMS/android/app/src/main/res/raw/error.mp3"
+    }
+]

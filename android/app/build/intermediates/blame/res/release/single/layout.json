@@ -56,6 +56,10 @@
         "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.facebook.react/react-native/0.48.2/res/layout/redbox_item_frame.xml"
     },
     {
+        "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/release/layout/edit_text.xml",
+        "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/WMS/react-native-prompt-android/unspecified/res/layout/edit_text.xml"
+    },
+    {
         "merged": "/Users/jinlongxi/WMS/android/app/build/intermediates/res/merged/release/layout/abc_search_dropdown_item_icons_2line.xml",
         "source": "/Users/jinlongxi/WMS/android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.0.1/res/layout/abc_search_dropdown_item_icons_2line.xml"
     },

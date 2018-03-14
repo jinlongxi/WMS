@@ -10,6 +10,8 @@ const initialState = {
     selectBtn: 1,
     editable: true,
     currentSkuList: [],
+    verifySkuList: null,
+    loading: false
 };
 
 //判断 如果是新的SKU添加到数组中 如果已经存在数量增加
@@ -35,13 +37,26 @@ const judgment = (selectSkuList, action) => {
 
 //删除指定商品的SKU
 const deleteSku = (selectSkuList, action) => {
-    console.log(selectSkuList, action.sku);
     selectSkuList.map((item, index)=> {
         if (item.sku === action.sku) {
             selectSkuList.splice(index, 1);
         }
     });
     return selectSkuList
+};
+
+//本地存库位上的产品
+const saveLocalSku = (skuList)=> {
+    let localSkuMap = new Map();
+    for (let a of skuList) {
+        const sku = a.productId.slice(0, 3);
+        if (localSkuMap.get(sku)) {
+            localSkuMap.set(sku, [...localSkuMap.get(sku), a])
+        } else {
+            localSkuMap.set(sku, [a])
+        }
+    }
+    return localSkuMap
 };
 
 export default function reservoir(state = initialState, action) {
@@ -76,12 +91,16 @@ export default function reservoir(state = initialState, action) {
         case TYPES.CLEAR_SELECT_DATA:
             return {
                 ...state,
-                currentPositionId: action.currentPositionId,
+                currentPositionId: null,
                 targetPositionId: null,
                 selectSkuList: [],
-                selectSkuSize: 0,
-                selectBtn: action.selectBtn,
-                placeholderText: '扫描'
+                //selectSkuSize: 0,
+                placeholderText: '扫描',
+                selectBtn: 1,
+                editable: true,
+                currentSkuList: [],
+                verifySkuList: null,
+                loading: false
             };
         case TYPES.DISABLE_INPUT:
             return {
@@ -91,8 +110,21 @@ export default function reservoir(state = initialState, action) {
         case TYPES.SAVE_CURRENT_SKULIST:
             return {
                 ...state,
-                currentSkuList: action.currentSkuList
+                currentSkuList: action.currentSkuList,
+                verifySkuList: saveLocalSku(action.currentSkuList),
+                loading: false,
             };
+        case TYPES.IMPORT_ALL_SKU:
+            return {
+                ...state,
+                selectSkuList: action.skuList,
+                loading: false,
+            };
+        case TYPES.LOADING:
+            return Object.assign({}, state, {
+                currentSkuList: [],
+                loading: true
+            });
         default:
             return state;
     }

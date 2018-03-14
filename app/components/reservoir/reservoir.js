@@ -39,6 +39,7 @@ class Reservoir extends React.Component {
             selectSkuSize: 0,
             dataSource: ds.cloneWithRows([]),
             currentSkuList: [],
+            verifySkuList: null,
             buttonViewHeight: null,
             buttonHidden: 0
         };
@@ -48,7 +49,8 @@ class Reservoir extends React.Component {
         this._clearData = this._clearData.bind(this);
         this._modifyNumber = this._modifyNumber.bind(this);
         this._renderRow = this._renderRow.bind(this);
-        this._isFocused = this._isFocused.bind(this)
+        this._isFocused = this._isFocused.bind(this);
+        this._importAllSku = this._importAllSku.bind(this)
     }
 
     //这个地方太恶心了  是为了挤掉系统键盘后续优化
@@ -74,6 +76,7 @@ class Reservoir extends React.Component {
         )
     };
 
+
     _renderSeparator(sectionID, rowID) {
         return (
             <View
@@ -88,6 +91,7 @@ class Reservoir extends React.Component {
 
     //修改扫描SKU数量
     _modifyNumber(item) {
+        const {reservoirActions}=this.props;
         prompt(
             '修改产品数量',
             item.sku,
@@ -95,14 +99,14 @@ class Reservoir extends React.Component {
                 {
                     text: '确定',
                     onPress: (number) => {
-                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number, this.state.currentSkuList);
+                        reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number, this.state.verifySkuList);
                         this._isFocused()
                     }
                 },
                 {
                     text: '删除',
                     onPress: () => {
-                        this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, 0, this.state.currentSkuList);
+                        reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, 0, this.state.currentSkuList);
                         this._isFocused()
                     }
                 },
@@ -124,6 +128,7 @@ class Reservoir extends React.Component {
 
     //扫描条码
     _scanning(text) {
+        const {reservoirActions}=this.props;
         switch (this.state.selectBtn) {
             case 1:
                 if (text === this.props.reservoirState.targetPositionId) {
@@ -138,7 +143,7 @@ class Reservoir extends React.Component {
                     return
                 }
                 return (
-                    this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'current', this.props.placeState.selectPlaceList)
+                    reservoirActions.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'current', this.props.placeState.selectPlaceList)
                 );
             case 2:
                 if (text === this.props.reservoirState.currentPositionId) {
@@ -153,7 +158,7 @@ class Reservoir extends React.Component {
                     return
                 }
                 return (
-                    this.props.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'target', this.props.placeState.selectPlaceList)
+                    reservoirActions.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'target', this.props.placeState.selectPlaceList)
                 );
             case 3:
                 let skuList = this.props.reservoirState.selectSkuList;
@@ -162,7 +167,7 @@ class Reservoir extends React.Component {
                     if (item.sku === text)
                         skuStock = parseInt(item.stock) + 1;
                 });
-                return this.props.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock, this.state.currentSkuList);
+                return reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock, this.state.verifySkuList);
         }
     }
 
@@ -179,6 +184,7 @@ class Reservoir extends React.Component {
 
     //移库操作
     _multiStockMove() {
+        const {reservoirActions}=this.props;
         if (this.state.selectSkuSize === 0) {
             Alert.alert(
                 '移库错误',
@@ -228,7 +234,7 @@ class Reservoir extends React.Component {
                     [
                         {
                             text: '确定',
-                            onPress: () => this.props.multiStockMove(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId,
+                            onPress: () => reservoirActions.multiStockMove(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId,
                                 this.props.reservoirState.targetPositionId, JsonArray, this.state.selectSkuSize)
                         },
                         {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
@@ -239,88 +245,117 @@ class Reservoir extends React.Component {
         }
     }
 
+    //导入全部SKU
+    _importAllSku() {
+        const {reservoirActions, reservoirState}=this.props;
+        const currentSkuList=reservoirState.currentSkuList;
+        reservoirActions.loadingWait();
+        let allSku = [];
+        for (let a of currentSkuList) {
+            allSku.push({sku: a.productId, stock: parseInt(a.quantityOnHandTotal)})
+        }
+        reservoirActions.importAllSku(allSku);
+    }
+
     render() {
+        const {reservoirState,selectStore,reservoirActions}=this.props;
         return (
             <View style={styles.container} {...this._panResponder.panHandlers} >
                 <Header initObj={{
                     backName: '选择模块',
                     barTitle: '商品库位移动',
-                    barTitle_small: this.props.selectStore.facilityName
+                    barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
-                <View style={styles.main}>
-                    <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
-                        <TextInput style={styles.input}
-                                   autoCapitalize='characters'
-                                   placeholder={this.props.reservoirState.placeholderText}
-                                   underlineColorAndroid='transparent'
-                                   returnKeyLabel="完成"
-                                   keyboardType="default"
-                                   autoFocus={true}
-                                   editable={this.state.editable}
-                                   multiline={false}
-                                   value={this.state.text}
-                                   onChangeText={(text)=> {
-                                       this.setState({
-                                           text: text
-                                       })
-                                   }}
-                                   onEndEditing={(text)=> {
+                {
+                    reservoirState.loading ? Util.loading :
+                        <View style={styles.main}>
+                            <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
+                                <TextInput style={styles.input}
+                                           autoCapitalize='characters'
+                                           placeholder={reservoirState.placeholderText}
+                                           underlineColorAndroid='transparent'
+                                           returnKeyLabel="完成"
+                                           keyboardType="default"
+                                           autoFocus={true}
+                                           editable={this.state.editable}
+                                           multiline={false}
+                                           value={this.state.text}
+                                           onChangeText={(text)=> {
+                                               this.setState({
+                                                   text: text
+                                               })
+                                           }}
+                                           onEndEditing={(text)=> {
 
-                                   }}
-                                   onSubmitEditing={()=> {
-                                       this._submit()
-                                   }}
-                                   onBlur={this._isFocused.bind(this)}
-                                   ref="aTextInputRef"
-                        />
-                        <View style={styles.btnContainer}>
-                            <View style={styles.position}>
-                                <TouchableOpacity
-                                    style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 1 ? '#F37B22' : '#cccccc'}]}
-                                    onPress={()=> {
-                                        this._switchBtn(1)
-                                    }}>
-                                    <Text style={styles.position_btn_text}>原位置</Text>
-                                    <Text
-                                        style={styles.position_btn_text}>{this.props.reservoirState.currentPositionId}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 2 ? '#F37B22' : '#cccccc'}]}
-                                    onPress={()=> {
-                                        this._switchBtn(2)
-                                    }}>
-                                    <Text style={styles.position_btn_text}>目标位置</Text>
-                                    <Text
-                                        style={styles.position_btn_text}>{this.props.reservoirState.targetPositionId}</Text>
-                                </TouchableOpacity>
+                                           }}
+                                           onSubmitEditing={()=> {
+                                               this._submit()
+                                           }}
+                                           onBlur={this._isFocused.bind(this)}
+                                           ref="aTextInputRef"
+                                />
+                                <View style={styles.btnContainer}>
+                                    <View style={styles.position}>
+                                        <TouchableOpacity
+                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 1 ? '#F37B22' : '#cccccc'}]}
+                                            onPress={()=> {
+                                                this._switchBtn(1)
+                                            }}>
+                                            <Text style={styles.position_btn_text}>原位置</Text>
+                                            <Text
+                                                style={styles.position_btn_text}>{reservoirState.currentPositionId}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.position}>
+                                        <TouchableOpacity
+                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 2 ? '#F37B22' : '#cccccc'}]}
+                                            onPress={()=> {
+                                                this._switchBtn(2)
+                                            }}>
+                                            <Text style={styles.position_btn_text}>目标位置</Text>
+                                            <Text
+                                                style={styles.position_btn_text}>{reservoirState.targetPositionId}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.position}>
+                                        <TouchableOpacity
+                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 3 ? '#F37B22' : '#cccccc'}]}
+                                            onPress={()=> {
+                                                this._switchBtn(3)
+                                            }}>
+                                            <Text style={styles.position_btn_text}>扫描产品</Text>
+                                            <Text
+                                                style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
+                                        </TouchableOpacity>
+                                        {
+                                            reservoirState.currentPositionId != null ?
+                                                <TouchableOpacity
+                                                    style={[styles.position_btn, {backgroundColor: '#28a745'}]}
+                                                    onPress={()=>this._importAllSku()}
+                                                >
+                                                    <Text style={styles.position_btn_text}>导出原位置所有商品</Text>
+                                                </TouchableOpacity> : null
+                                        }
+                                    </View>
+                                </View>
                             </View>
-                            <View style={styles.position}>
-                                <TouchableOpacity
-                                    style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 3 ? '#F37B22' : '#cccccc'}]}
-                                    onPress={()=> {
-                                        this._switchBtn(3)
-                                    }}>
-                                    <Text style={styles.position_btn_text}>扫描产品</Text>
-                                    <Text
-                                        style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
-                                </TouchableOpacity>
-                            </View>
+                            {
+                                reservoirState.selectSkuList.length > 0 ?
+                                    <View style={{flex: 1}}>
+                                        <ListView
+                                            style={styles.list}
+                                            dataSource={this.state.dataSource}
+                                            renderRow={this._renderRow}
+                                            renderSeparator={this._renderSeparator}
+                                            showsHorizontalScrollIndicator={false}
+                                            showsVerticalScrollIndicator={false}
+                                            keyboardShouldPersistTaps='always'
+                                        />
+                                    </View>
+                                    : null
+                            }
                         </View>
-                    </View>
-                    {
-                        this.props.reservoirState.selectSkuList.length > 0 ?
-                            <ListView
-                                style={styles.list}
-                                dataSource={this.state.dataSource}
-                                renderRow={this._renderRow}
-                                renderSeparator={this._renderSeparator}
-                                showsHorizontalScrollIndicator={false}
-                                showsVerticalScrollIndicator={false}
-                                keyboardShouldPersistTaps='always'
-                            />
-                            : null
-                    }
-                </View>
+                }
                 <Menu
                     ref={this.setMenuRef}
                     button={
@@ -478,12 +513,13 @@ class Reservoir extends React.Component {
     }
 
     componentWillUnmount() {
+        const {reservoirActions}=this.props;
         if (Platform.OS === 'android') {
             console.log('用户点击返回');
             BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
         }
         //清空数据
-        this.props.clearData();
+        reservoirActions.clearData();
         //卸载键盘弹出事件监听
         if (this.keyboardDidShowListener != null) {
             this.keyboardDidShowListener.remove();
@@ -506,7 +542,8 @@ class Reservoir extends React.Component {
             selectBtn: nextProps.reservoirState.selectBtn,
             editable: nextProps.reservoirState.editable,
             currentSkuList: nextProps.reservoirState.currentSkuList,
-            text: nextProps.reservoirState.text
+            text: nextProps.reservoirState.text,
+            verifySkuList: nextProps.reservoirState.verifySkuList
         })
     }
 }

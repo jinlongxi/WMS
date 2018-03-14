@@ -24,7 +24,11 @@ export const DELETE_SELECT_SKU = 'DELETE_SELECT_SKU';                           
 export const DISABLE_INPUT = 'DISABLE_INPUT';                                               //禁用扫描框
 export const SAVE_CURRENT_SKULIST = 'SAVE_CURRENT_SKULIST';                                 //缓存当前原位置SKU列表
 export const CLEAR_SELECT_DATA = 'CLEAR_SELECT_DATA';                                       //清空扫描到的全部数据
+export const IMPORT_ALL_SKU='IMPORT_ALL_SKU';                                               //导入全部SKU
+export const LOADING='LOADING';                                                             //加载
 
 /*分拣模块*********************************************************/
 export const ADD_PICKLIST='ADD_PICKLIST';                                                   //添加分拣单到本地
+export const CHANGE_ISPICKED='CHANGE_ISPICKED';                                             //修改已分拣数量
+export const COMPLETE_PICKED='COMPLETE_PICKED';                                             //完成分拣
 

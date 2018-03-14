@@ -146,6 +146,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-sound')
     compile project(':react-native-prompt-android')
     compile project(':react-native-keyevent')
     compile fileTree(dir: "libs", include: ["*.jar"])

@@ -16,7 +16,7 @@ const Sound_API = {
     //         s.play(() => s.release());
     //     });
     // },
-    playSoundBundleSuccess:()=>{
+    playSoundBundleSuccess: ()=> {
         const s = new Sound('pass.mp3', Sound.MAIN_BUNDLE, (e) => {
             if (e) {
                 console.log('error', e);
@@ -27,7 +27,7 @@ const Sound_API = {
             }
         });
     },
-    playSoundBundleError:()=>{
+    playSoundBundleError: ()=> {
         const s = new Sound('error.mp3', Sound.MAIN_BUNDLE, (e) => {
             if (e) {
                 console.log('error', e);

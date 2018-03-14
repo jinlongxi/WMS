@@ -1,0 +1,99 @@
+# react-native-material-menu &middot; [![npm](https://img.shields.io/npm/v/react-native-material-menu.svg)](https://www.npmjs.com/package/react-native-material-menu) [![license](https://img.shields.io/npm/l/react-native-material-menu.svg)](https://github.com/mxck/react-native-material-menu/blob/master/LICENSE)
+
+Pure JavaScript [material
+menu](https://material.io/guidelines/components/menus.html) component for React
+Native.
+
+<img src="https://media.giphy.com/media/3ov9jUvQH4U82JGNRC/giphy.gif" />
+
+## Install
+
+```bash
+npm install --save react-native-material-menu
+
+or
+
+yarn add react-native-material-menu
+```
+
+## Usage
+
+```jsx
+import Menu, { MenuItem, MenuDivider } from 'react-native-material-menu';
+
+class App extends React.PureComponent {
+  setMenuRef = ref => {
+    this.menu = ref;
+  };
+
+  menu = null;
+
+  hideMenu = () => {
+    this.menu.hide();
+  };
+
+  showMenu = () => {
+    this.menu.show();
+  };
+
+  render() {
+    return (
+      <Menu
+        ref={this.setMenuRef}
+        button={<Text onPress={this.showMenu}>Show menu</Text>}
+      >
+        <MenuItem onPress={this.hideMenu}>Test 1</MenuItem>
+        <MenuItem onPress={this.hideMenu}>Test 2</MenuItem>
+        <MenuItem onPress={this.hideMenu} disabled>
+          Test 3
+        </MenuItem>
+        <MenuDivider />
+        <MenuItem onPress={this.hideMenu}>Test 4</MenuItem>
+      </Menu>
+    );
+  }
+}
+```
+
+## Menu
+
+### Properties
+
+| name     | description                            |  type | default |
+| :------- | :------------------------------------- | ----: | :------ |
+| children | Components rendered in menu (required) |  Node | -       |
+| button   | Button component (required)            |  Node | -       |
+| style    | Menu style                             | Style | -       |
+
+### Methods
+
+| name   | description |
+| :----- | :---------- |
+| show() | Shows menu  |
+| hide() | Hides menu  |
+
+## MenuItem
+
+### Properties
+
+| name              | description              |   type | default            |
+| :---------------- | :----------------------- | -----: | :----------------- |
+| children          | Rendered text (required) | String | -                  |
+| disabled          | Disabled flag            |   Bool | false              |
+| disabledTextColor | Disabled text color      | String | "rgb(224,224,224)" |
+| onPress           | Called function on press |   Func | -                  |
+| style             | Container style          |  Style | -                  |
+| textStyle         | Text style               |  Style | -                  |
+| underlayColor     | Pressed color            | String | "rgb(224,224,224)" |
+
+## MenuDivider
+
+### Properties
+
+| name  | description |   type | default            |
+| :---- | :---------- | -----: | :----------------- |
+| color | Line color  | String | "rgba(0,0,0,0.12)" |
+
+## License
+
+MIT License. © Maksim Milyutin 2017
