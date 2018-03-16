@@ -27,8 +27,20 @@ var Util = {
 
     //加载动画
     loading: <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-        <ActivityIndicator size={40} style={{marginTop: 100}}/>
+        <ActivityIndicator size={40}/>
     </View>,
+
+    //颜色区分
+    distinguishColor: (a, b)=> {
+        let c = a - b;
+        if (c === 0) {
+            return '#28a745'
+        } else if (c > 0) {
+            return 'red'
+        } else if (c < 0) {
+            return null
+        }
+    }
 
 };
 

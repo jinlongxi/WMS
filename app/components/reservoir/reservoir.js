@@ -248,7 +248,7 @@ class Reservoir extends React.Component {
     //导入全部SKU
     _importAllSku() {
         const {reservoirActions, reservoirState}=this.props;
-        const currentSkuList=reservoirState.currentSkuList;
+        const currentSkuList = reservoirState.currentSkuList;
         reservoirActions.loadingWait();
         let allSku = [];
         for (let a of currentSkuList) {
@@ -258,7 +258,7 @@ class Reservoir extends React.Component {
     }
 
     render() {
-        const {reservoirState,selectStore,reservoirActions}=this.props;
+        const {reservoirState, selectStore, reservoirActions}=this.props;
         return (
             <View style={styles.container} {...this._panResponder.panHandlers} >
                 <Header initObj={{

@@ -28,7 +28,11 @@ export const IMPORT_ALL_SKU='IMPORT_ALL_SKU';                                   
 export const LOADING='LOADING';                                                             //加载
 
 /*分拣模块*********************************************************/
+export const INIT_VERIFYPICK_STORE='INIT_VERIFYPICK_STORE';                                 //初始化分拣数据（使用本地数据）
 export const ADD_PICKLIST='ADD_PICKLIST';                                                   //添加分拣单到本地
 export const CHANGE_ISPICKED='CHANGE_ISPICKED';                                             //修改已分拣数量
 export const COMPLETE_PICKED='COMPLETE_PICKED';                                             //完成分拣
+export const SET_PICKLIST_ARRAY='SET_PICKLIST_ARRAY';                                       //设置分拣箱列表数组
+export const SET_PICKLIST_LOCATION_ARRAY='SET_PICKLIST_LOCATION_ARRAY';                     //设置分拣箱库位数组
+export const SET_PICKLIST_LOCATION_SKU_ARRAY='SET_PICKLIST_LOCATION_SKU_ARRAY';             //设置分拣箱SKU数组
 

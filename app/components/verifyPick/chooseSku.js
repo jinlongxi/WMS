@@ -5,6 +5,9 @@ import React, {Component} from 'react';
 import Header from '../reservoir/reservoirHeader';
 import Icon from '../common/icon_enter';
 import prompt from 'react-native-prompt-android';
+import Util from '../../utils/util';
+import Menu, {MenuItem} from 'react-native-material-menu';
+import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
     StyleSheet,
@@ -30,32 +33,45 @@ class chooseSku extends React.Component {
     constructor(props) {
         super(props);
         let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const {fenjianxiangId, selectLocation, verifyPickStore}=this.props;
-        let data;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                for (let b of a.kuwei) {
-                    if (Object.keys(b)[0] === selectLocation) {
-                        data = Object.values(b)[0]
-                    }
-                }
+        const {picklistBinId, verifyPickStore, location}=this.props;
+        let SkuArray = [];
+        for (let a of verifyPickStore.picklistLocationSkuArray) {
+            if (a.locationSeqId === location && a.picklistBinId === picklistBinId) {
+                SkuArray = a.SkuArray;
             }
         }
         this.state = {
-            dataSource: ds.cloneWithRows(Object.values(data)),
+            dataSource: ds.cloneWithRows(SkuArray),
             text: null,
         };
         this._modifyNumber = this._modifyNumber.bind(this);
         this._renderRow = this._renderRow.bind(this);
+        this._isFocused = this._isFocused.bind(this);
     }
 
+    //这个地方太恶心了  是为了挤掉系统键盘后续优化
+    menu = null;
+    setMenuRef = ref => {
+        this.menu = ref;
+    };
+    hideMenu = () => {
+        this.menu.hide();
+    };
+    showMenu = () => {
+        this.menu.show();
+    };
+
     _renderRow(item, sectionID, rowID, highlightRow) {
-        const {sku, noPicked, isPicked}=item;
+        const {SKU, noPicked, isPicked}=item;
         return (
             <TouchableOpacity style={styles.item} onPress={this._modifyNumber.bind(this, item)}>
-                <Text style={[styles.txt,]}>({parseInt(rowID) + 1}) </Text>
-                <Text style={[{flex: 1,}, styles.txt,]}>{sku}</Text>
-                <Text style={{fontWeight: 'bold'}}>{isPicked}/{noPicked}</Text>
+                <Text
+                    style={[styles.txt, {color: Util.distinguishColor(isPicked, noPicked)}]}>({parseInt(rowID) + 1}) </Text>
+                <Text style={[{flex: 1,}, styles.txt, {color: Util.distinguishColor(isPicked, noPicked)}]}>{SKU}</Text>
+                <Text style={{
+                    fontWeight: 'bold',
+                    color: Util.distinguishColor(isPicked, noPicked)
+                }}>{isPicked}/{noPicked}</Text>
                 <Icon/>
             </TouchableOpacity>
         )
@@ -82,19 +98,25 @@ class chooseSku extends React.Component {
         );
     }
 
+    //文本框获得焦点
+    _isFocused() {
+        const that = this;
+        setTimeout(function () {
+            that.refs.aTextInputRef.focus();
+            that.showMenu();
+            that.hideMenu();
+        }, 500);
+    }
+
     //分拣详情信息展示
-    _renderPickDetail(fenjianxiangId, selectLocation, verifyPickStore) {
+    _renderPickDetail(location, verifyPickStore, picklistBinId) {
         let isPicked = 0;
         let noPicked = 0;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                for (let b of a.kuwei) {
-                    if (Object.keys(b)[0] === selectLocation) {
-                        for (let c of Object.values(b)[0]) {
-                            isPicked += c.isPicked;
-                            noPicked += c.noPicked;
-                        }
-                    }
+        for (let a of verifyPickStore.picklistLocationSkuArray) {
+            if (a.locationSeqId === location && a.picklistBinId === picklistBinId) {
+                for (let b of a.SkuArray) {
+                    isPicked += b.isPicked;
+                    noPicked += b.noPicked;
                 }
             }
         }
@@ -106,7 +128,7 @@ class chooseSku extends React.Component {
                         fontSize: 16,
                         fontWeight: 'bold',
                         color: '#1d1d1d'
-                    }}>库位号: {selectLocation}</Text>
+                    }}>库位号: {location}</Text>
                 </View>
                 <View style={{
                     flexDirection: 'row',
@@ -142,13 +164,13 @@ class chooseSku extends React.Component {
     }
 
     render() {
-        const {fenjianxiangId, selectLocation, verifyPickStore, facilityName}=this.props;
+        const {selectLocation, verifyPickStore, selectStore, location, picklistBinId}=this.props;
         return (
             <View style={styles.container}>
                 <Header initObj={{
                     backName: '',
                     barTitle: '订单分拣－选择商品',
-                    barTitle_small: facilityName
+                    barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
                     <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
@@ -176,18 +198,35 @@ class chooseSku extends React.Component {
                                    ref="aTextInputRef"
                         />
                     </View>
-                    {this._renderPickDetail(fenjianxiangId, selectLocation, verifyPickStore)}
-                    <ListView
-                        style={styles.list}
-                        dataSource={this.state.dataSource}
-                        renderRow={this._renderRow}
-                        renderHeader={this._renderHeader}
-                        renderSeparator={this._renderSeparator}
-                        showsHorizontalScrollIndicator={false}
-                        showsVerticalScrollIndicator={false}
-                        keyboardShouldPersistTaps='always'
-                    />
+                    {
+                        verifyPickStore.picklistLocationSkuArray.some((item)=> {
+                            return item.locationSeqId === location && item.picklistBinId === picklistBinId;
+                        }) ? this._renderPickDetail(location, verifyPickStore, picklistBinId) : null
+                    }
+                    {
+                        verifyPickStore.picklistLocationSkuArray.some((item)=> {
+                            return item.locationSeqId === location && item.picklistBinId === picklistBinId
+                        }) ? <ListView
+                            style={styles.list}
+                            dataSource={this.state.dataSource}
+                            renderRow={this._renderRow}
+                            renderHeader={this._renderHeader}
+                            renderSeparator={this._renderSeparator}
+                            showsHorizontalScrollIndicator={false}
+                            showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps='always'
+                        /> : Util.loading
+                    }
                 </View>
+                <Menu
+                    ref={this.setMenuRef}
+                    button={
+                        <TouchableOpacity onPress={this.showMenu}>
+                        </TouchableOpacity>
+                    }
+                >
+                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
+                </Menu>
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.moving} onPress={()=> {
                         this.props.navigator.pop()
@@ -201,12 +240,33 @@ class chooseSku extends React.Component {
 
     //扫描或输入分拣箱单
     _submit() {
-
+        const {verifyPickStore, picklistBinId, location}=this.props;
+        let hasSku = false;
+        let currentSelectSku;
+        for (let a of verifyPickStore.picklistLocationSkuArray) {
+            if (a.picklistBinId === picklistBinId && a.locationSeqId === location) {
+                for (let b of a.SkuArray) {
+                    if (b.SKU === this.state.text) {
+                        hasSku = true;
+                        currentSelectSku = b
+                    }
+                }
+            }
+        }
+        if (hasSku) {
+            this._modifyNumber(currentSelectSku)
+        } else {
+            alert('当前库位中没有这个SKU')
+        }
+        this.setState({
+            text: null
+        })
     }
 
     //修改扫描SKU数量
     _modifyNumber(item) {
-        const {selectLocation, verifyPickActions, fenjianxiangId}=this.props;
+        const {SKU, locationSeqId, noPicked, isPicked}=item;
+        const {selectStore, verifyPickActions, picklistBinId}=this.props;
         prompt(
             '修改产品数量',
             item.sku,
@@ -214,132 +274,62 @@ class chooseSku extends React.Component {
                 {
                     text: '确定',
                     onPress: (number) => {
-                        verifyPickActions.changeisPicked(fenjianxiangId, selectLocation, item.sku, number, item.noPicked)
+                        if (number) {
+                            verifyPickActions.changeisPicked(picklistBinId, locationSeqId, SKU, parseInt(number), isPicked);
+                        }
+                        this._isFocused()
                     }
                 },
                 {
-                    text: '删除',
-                    onPress: () => {
-
+                    text: '完成',
+                    onPress: (number) => {
+                        verifyPickActions.changeisPicked(picklistBinId, locationSeqId, SKU, noPicked, isPicked);
+                        this._isFocused()
                     }
                 },
                 {
                     text: '取消',
                     onPress: () => {
+                        this._isFocused()
                     }
                 },
             ],
             {
                 cancelable: false,
-                defaultValue: typeof item.isPicked === 'number' ? JSON.stringify(item.isPicked) : item.isPicked,
+                defaultValue: item.isPicked === 0 ? null : item.isPicked.toString(),
                 placeholder: '输入数量',
                 type: 'numeric'
             }
         );
     }
 
+    componentWillMount() {
+        InteractionManager.runAfterInteractions(()=> {
+            const {location, selectStore, verifyPickStore, verifyPickActions, picklistBinId, pickType}=this.props;
+            let isRequest = verifyPickStore.picklistLocationSkuArray.some((item)=> {
+                return item.picklistBinId === picklistBinId && item.locationSeqId === location;
+            });
+            if (!isRequest) {
+                verifyPickActions.getSKUListByLocationSeqId(picklistBinId, selectStore.facilityId, location, pickType);
+            }
+        });
+    }
+
     componentWillReceiveProps(nextProps) {
-        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const {fenjianxiangId, selectLocation, verifyPickStore}=nextProps;
-        let data;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                for (let b of a.kuwei) {
-                    if (Object.keys(b)[0] === selectLocation) {
-                        data = Object.values(b)[0]
-                    }
-                }
+        const {picklistBinId, verifyPickStore, location}=nextProps;
+        let SkuArray = [];
+        console.log(verifyPickStore.picklistLocationSkuArray);
+        for (let a of verifyPickStore.picklistLocationSkuArray) {
+            console.log(a);
+            if (a.locationSeqId === location && a.picklistBinId === picklistBinId) {
+                SkuArray = a.SkuArray;
             }
         }
+        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.setState({
-            dataSource: ds.cloneWithRows(Object.values(data)),
+            dataSource: ds.cloneWithRows(SkuArray),
         })
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#7a7a7a',
-    },
-    main: {
-        flex: 1
-    },
-    form: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-    },
-    input: {
-        width: '100%',
-        fontSize: 24,
-        fontWeight: 'bold',
-        backgroundColor: 'rgb(44, 57, 73)',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        textAlign: 'center',
-        color: '#fff',
-    },
-    btnContainer: {
-        padding: 10,
-        flexDirection: 'column',
-    },
-    position: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    position_btn: {
-        flex: 1,
-        margin: 5,
-        borderRadius: 2,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 6,
-    },
-    position_btn_text: {
-        fontSize: 13,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        color: '#fff'
-    },
-
-    list: {
-        margin: 10,
-        backgroundColor: '#ffffff'
-    },
-    txt: {
-        textAlign: 'left',
-        textAlignVertical: 'center',
-        fontSize: 18,
-    },
-    item: {
-        padding: 15,
-        backgroundColor: 'white',
-        borderWidth: 0,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footer: {
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    emptying: {
-        flex: 1,
-        backgroundColor: '#cccccc'
-    },
-    moving: {
-        flex: 1,
-        backgroundColor: '#28a745'
-    },
-    footer_btn_text: {
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: 'white',
-        textAlign: 'center'
-    },
-});
 
 export default chooseSku ;

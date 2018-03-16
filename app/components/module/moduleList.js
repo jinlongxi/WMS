@@ -76,7 +76,20 @@ class moduleList extends Component {
                     name: 'VerifyPick',
                     component: VerifyPick,
                     params: {
-                        selectStore: this.props.selectStore
+                        selectStore: this.props.selectStore,
+                        pickType:'订单'
+                    },
+                })
+            }
+        } else if (item.type === 'VerifyShipmentsPick') {
+            const {navigator} = this.props;
+            if (navigator) {
+                navigator.push({
+                    name: 'VerifyShipmentsPick',
+                    component: VerifyPick,
+                    params: {
+                        selectStore: this.props.selectStore,
+                        pickType:'货运'
                     },
                 })
             }

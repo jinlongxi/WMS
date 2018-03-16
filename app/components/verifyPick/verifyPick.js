@@ -6,6 +6,8 @@ import Header from '../reservoir/reservoirHeader';
 import Icon from '../common/icon_enter';
 import Data from './dataPick';
 import verifyPickLocationContainer from '../../containers/verifyPickLocationContainer';
+import Util from '../../utils/util';
+import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
     StyleSheet,
@@ -31,31 +33,27 @@ class VerifyPick extends React.Component {
     constructor(props) {
         super(props);
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        const {verifyPickStore}=this.props;
         this.state = {
-            dataSource: ds.cloneWithRows([]),
+            dataSource: ds.cloneWithRows(verifyPickStore.picklistArray),
             text: null,
         };
-        this._renderRow = this._renderRow.bind(this)
+        this._renderRow = this._renderRow.bind(this);
     }
 
     _renderRow(item, sectionID, rowID, highlightRow) {
-        const {fenjianxiangId, kuwei}=item;
-        let isPicked = 0;
-        let allPicked = 0;
-        for (let a of kuwei) {
-            for (let b of Object.values(a)) {
-                for (let c of b) {
-                    allPicked += c.noPicked;
-                    isPicked += c.isPicked
-                }
-            }
-        }
+        const {picklistBinId, noPicked, isPicked}=item;
         return (
             <TouchableOpacity style={styles.item}
-                              onPress={()=>this._choosePickList(fenjianxiangId)}>
-                <Text style={[styles.txt,]}>({parseInt(rowID) + 1}) </Text>
-                <Text style={[{flex: 1,}, styles.txt,]}>{fenjianxiangId}</Text>
-                <Text style={{fontWeight: 'bold'}}>{isPicked}/{allPicked}</Text>
+                              onPress={()=>this._choosePickList(picklistBinId)}>
+                <Text
+                    style={[styles.txt, {color: Util.distinguishColor(isPicked, noPicked)}]}>({parseInt(rowID) + 1}) </Text>
+                <Text
+                    style={[{flex: 1,}, styles.txt, {color: Util.distinguishColor(isPicked, noPicked)}]}>{picklistBinId}</Text>
+                <Text style={{
+                    fontWeight: 'bold',
+                    color: Util.distinguishColor(isPicked, noPicked)
+                }}>{isPicked}/{noPicked}</Text>
                 <Icon/>
             </TouchableOpacity>
         )
@@ -83,13 +81,13 @@ class VerifyPick extends React.Component {
     }
 
     render() {
-        const {verifyPickStore}=this.props;
+        const {verifyPickStore, selectStore,pickType}=this.props;
         return (
             <View style={styles.container}>
                 <Header initObj={{
                     backName: '',
-                    barTitle: '订单分拣-选择分拣箱单',
-                    barTitle_small: this.props.facilityName
+                    barTitle: pickType+'分拣-选择分拣箱单',
+                    barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
                     <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
@@ -118,7 +116,7 @@ class VerifyPick extends React.Component {
                         />
                     </View>
                     {
-                        verifyPickStore.pickList.length > 0 ?
+                        verifyPickStore.picklistArray.length > 0 ?
                             <ListView
                                 style={styles.list}
                                 dataSource={this.state.dataSource}
@@ -128,7 +126,7 @@ class VerifyPick extends React.Component {
                                 showsHorizontalScrollIndicator={false}
                                 showsVerticalScrollIndicator={false}
                                 keyboardShouldPersistTaps='always'
-                            /> : null
+                            /> : Util.loading
                     }
                 </View>
             </View>
@@ -137,12 +135,12 @@ class VerifyPick extends React.Component {
 
     //扫描或输入分拣箱单
     _submit() {
-        const {verifyPickActions, verifyPickStore}=this.props;
-        let selectData = Data.filter((item, index)=> {
-            return item.fenjianxiangId === this.state.text
+        const {verifyPickStore}=this.props;
+        let selectData = verifyPickStore.picklistArray.filter((item, index)=> {
+            return item.picklistBinId === this.state.text
         });
         if (selectData.length > 0) {
-            verifyPickActions.addPickList(selectData)
+            this._choosePickList(this.state.text)
         } else {
             alert('没有这个分拣箱单')
         }
@@ -152,123 +150,41 @@ class VerifyPick extends React.Component {
     }
 
     //进入对应分拣箱单页面
-    _choosePickList(fenjianxiangId) {
-        const {navigator} = this.props;
+    _choosePickList(picklistBinId) {
+        const {navigator, selectStore,pickType} = this.props;
         if (navigator) {
             navigator.push({
                 name: 'verifyPickLocationContainer',
                 component: verifyPickLocationContainer,
                 params: {
-                    fenjianxiangId: fenjianxiangId,
-                    facilityName: this.props.selectStore.facilityName
+                    picklistBinId: picklistBinId,
+                    selectStore: selectStore,
+                    pickType:pickType
                 },
             })
         }
     }
 
     componentWillMount() {
-        const {verifyPickStore}=this.props;
-        console.log(verifyPickStore);
-        var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        this.setState({
-            dataSource: ds.cloneWithRows(verifyPickStore.pickList),
-        })
+        InteractionManager.runAfterInteractions(()=> {
+
+            const {verifyPickStore, selectStore, verifyPickActions,pickType}=this.props;
+            verifyPickActions.getPicklistBinByFacility(selectStore.facilityId,pickType);
+            var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+            this.setState({
+                dataSource: ds.cloneWithRows(verifyPickStore.picklistArray),
+            })
+        });
     }
 
     componentWillReceiveProps(nextProps) {
         const {verifyPickStore}=nextProps;
-        console.log(verifyPickStore);
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.setState({
-            dataSource: ds.cloneWithRows(verifyPickStore.pickList),
+            dataSource: ds.cloneWithRows(verifyPickStore.picklistArray),
         })
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#7a7a7a',
-    },
-    main: {
-        flex: 1
-    },
-    form: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-    },
-    input: {
-        width: '100%',
-        fontSize: 24,
-        fontWeight: 'bold',
-        backgroundColor: 'rgb(44, 57, 73)',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        textAlign: 'center',
-        color: '#fff',
-    },
-    btnContainer: {
-        padding: 10,
-        flexDirection: 'column',
-    },
-    position: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    position_btn: {
-        flex: 1,
-        margin: 5,
-        borderRadius: 2,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 6,
-    },
-    position_btn_text: {
-        fontSize: 13,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        color: '#fff'
-    },
-
-    list: {
-        margin: 10,
-        backgroundColor: '#ffffff'
-    },
-    txt: {
-        textAlign: 'left',
-        textAlignVertical: 'center',
-        fontSize: 18,
-    },
-    item: {
-        padding: 15,
-        backgroundColor: 'white',
-        borderWidth: 0,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    footer: {
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    emptying: {
-        flex: 1,
-        backgroundColor: '#cccccc'
-    },
-    moving: {
-        flex: 1,
-        backgroundColor: '#28a745'
-    },
-    footer_btn_text: {
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: 'white',
-        textAlign: 'center'
-    },
-});
 
 export default VerifyPick ;
 

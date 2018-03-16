@@ -5,6 +5,8 @@ import React, {Component} from 'react';
 import Header from '../reservoir/reservoirHeader';
 import Icon from '../common/icon_enter';
 import ChooseSkuContainer from '../../containers/verifyPickSkuContainer';
+import Util from '../../utils/util';
+import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
     StyleSheet,
@@ -30,32 +32,32 @@ class chooseLocation extends React.Component {
     constructor(props) {
         super(props);
         var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        const {picklistBinId, verifyPickStore, selectStore}=this.props;
+        let locationArray = [];
+        for (let a of verifyPickStore.picklistLocationArray) {
+            if (a.picklistBinId === picklistBinId) {
+                locationArray = a.locationArray;
+            }
+        }
         this.state = {
-            dataSource: ds.cloneWithRows([]),
+            dataSource: ds.cloneWithRows(locationArray),
             text: null,
         };
         this._renderRow = this._renderRow.bind(this)
     }
 
     _renderRow(item, sectionID, rowID, highlightRow) {
-        let kuwei;
-        let isPicked = 0;
-        let allPicked = 0;
-        for (let key in item) {
-            kuwei = key;
-        }
-        for (let b of Object.values(item)) {
-            for (let c of b) {
-                isPicked += c.isPicked;
-                allPicked += c.noPicked
-            }
-        }
-
+        const {location, isPicked, noPicked}=item;
         return (
-            <TouchableOpacity style={styles.item} onPress={this._chooseLocation.bind(this, item, isPicked, allPicked)}>
-                <Text style={[styles.txt,]}>({parseInt(rowID) + 1}) </Text>
-                <Text style={[{flex: 1,}, styles.txt,]}>{kuwei}</Text>
-                <Text style={{fontWeight: 'bold'}}>{isPicked}/{allPicked}</Text>
+            <TouchableOpacity style={styles.item} onPress={this._chooseLocation.bind(this, location)}>
+                <Text
+                    style={[styles.txt, {color: Util.distinguishColor(isPicked, noPicked)}]}>({parseInt(rowID) + 1}) </Text>
+                <Text
+                    style={[{flex: 1,}, styles.txt, {color: Util.distinguishColor(isPicked, noPicked)}]}>{location}</Text>
+                <Text style={{
+                    fontWeight: 'bold',
+                    color: Util.distinguishColor(isPicked, noPicked)
+                }}>{isPicked}/{noPicked}</Text>
                 <Icon/>
             </TouchableOpacity>
         )
@@ -83,20 +85,17 @@ class chooseLocation extends React.Component {
     }
 
     //分拣详情信息展示
-    _renderPickDetail(verifyPickStore, fenjianxiangId) {
-        let locationNumber = 0;
-        let isPicked = 0;
+    _renderPickDetail(verifyPickStore, picklistBinId) {
+        let locationArray;
         let noPicked = 0;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                locationNumber = a;
-                for (let b of a.kuwei) {
-                    for (let c of Object.values(b)) {
-                        for (let d of c) {
-                            isPicked += parseInt(d.isPicked);
-                            noPicked += parseInt(d.noPicked);
-                        }
-                    }
+        let isPicked = 0;
+        for (let a of verifyPickStore.picklistLocationArray) {
+            if (a.picklistBinId === picklistBinId) {
+                locationArray = a.locationArray;
+                console.log(locationArray);
+                for (let b of locationArray) {
+                    noPicked += b.noPicked;
+                    isPicked += b.isPicked
                 }
             }
         }
@@ -109,7 +108,7 @@ class chooseLocation extends React.Component {
                         fontSize: 16,
                         fontWeight: 'bold',
                         color: '#1d1d1d'
-                    }}>分拣箱号: {fenjianxiangId}</Text>
+                    }}>分拣箱号: {picklistBinId}</Text>
                 </View>
                 <View style={{
                     flexDirection: 'row',
@@ -129,7 +128,7 @@ class chooseLocation extends React.Component {
                             color: '#1d1d1d',
                             fontSize: 16,
                             fontWeight: 'bold'
-                        }}>{locationNumber.kuwei ? locationNumber.kuwei.length : 0}</Text>
+                        }}>{locationArray.length}</Text>
                     </View>
                     <View style={{
                         justifyContent: 'center',
@@ -159,13 +158,13 @@ class chooseLocation extends React.Component {
     }
 
     render() {
-        const {facilityName, verifyPickStore, fenjianxiangId, verifyPickActions, navigator}=this.props;
+        const {selectStore, verifyPickStore, picklistBinId, verifyPickActions, navigator}=this.props;
         return (
             <View style={styles.container}>
                 <Header initObj={{
                     backName: '',
                     barTitle: '订单分拣－选择库位',
-                    barTitle_small: facilityName
+                    barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
                     <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
@@ -193,21 +192,32 @@ class chooseLocation extends React.Component {
                                    ref="aTextInputRef"
                         />
                     </View>
-                    {this._renderPickDetail(verifyPickStore, fenjianxiangId)}
-                    <ListView
-                        style={styles.list}
-                        dataSource={this.state.dataSource}
-                        renderRow={this._renderRow}
-                        renderHeader={this._renderHeader}
-                        renderSeparator={this._renderSeparator}
-                        showsHorizontalScrollIndicator={false}
-                        showsVerticalScrollIndicator={false}
-                        keyboardShouldPersistTaps='always'
-                    />
+                    {
+                        verifyPickStore.picklistLocationArray.some((item)=> {
+                            return item.picklistBinId === picklistBinId
+                        }) ? this._renderPickDetail(verifyPickStore, picklistBinId) : null
+                    }
+                    {
+                        verifyPickStore.picklistLocationArray.some((item)=> {
+                            return item.picklistBinId === picklistBinId
+                        }) ?
+                            <ListView
+                                style={styles.list}
+                                dataSource={this.state.dataSource}
+                                renderRow={this._renderRow}
+                                renderHeader={this._renderHeader}
+                                renderSeparator={this._renderSeparator}
+                                showsHorizontalScrollIndicator={false}
+                                showsVerticalScrollIndicator={false}
+                                keyboardShouldPersistTaps='always'
+                            />
+                            : Util.loading
+                    }
+
                 </View>
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.moving}
-                                      onPress={()=>this._completePick.bind(this, verifyPickStore, fenjianxiangId, verifyPickActions, navigator)()}>
+                                      onPress={()=>this._completePick.bind(this)()}>
                         <Text style={styles.footer_btn_text}>完成分拣</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.emptying}>
@@ -219,16 +229,17 @@ class chooseLocation extends React.Component {
     }
 
     //选中库位进入分拣产品页面
-    _chooseLocation(item) {
-        const {navigator, verifyPickActions, verifyPickStore, facilityName, fenjianxiangId} = this.props;
+    _chooseLocation(location) {
+        const {navigator, verifyPickActions, verifyPickStore, selectStore, picklistBinId,pickType} = this.props;
         if (navigator) {
             navigator.push({
                 name: 'ChooseSkuContainer',
                 component: ChooseSkuContainer,
                 params: {
-                    selectLocation: Object.keys(item)[0],
-                    facilityName,
-                    fenjianxiangId
+                    location: location,
+                    selectStore,
+                    picklistBinId,
+                    pickType
                 },
             })
         }
@@ -236,30 +247,45 @@ class chooseLocation extends React.Component {
 
     //扫描或输入分拣箱单
     _submit() {
-
+        const {verifyPickStore, picklistBinId}=this.props;
+        let hasLocation = false;
+        for (let a of verifyPickStore.picklistLocationArray) {
+            if (a.picklistBinId === picklistBinId) {
+                for (let b of a.locationArray) {
+                    if (b.location === this.state.text) {
+                        hasLocation = true
+                    }
+                }
+            }
+        }
+        if (hasLocation) {
+            this._chooseLocation(this.state.text)
+        } else {
+            alert('当前分拣箱中没有这个库位')
+        }
+        this.setState({
+            text: null
+        })
     }
 
     //完成分拣
-    _completePick(verifyPickStore, fenjianxiangId, verifyPickActions, navigator) {
+    _completePick() {
+        const {selectStore, verifyPickStore, picklistBinId, verifyPickActions, navigator}=this.props;
         let locationNumber = 0;
         let isPicked = 0;
         let noPicked = 0;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                locationNumber = a;
-                for (let b of a.kuwei) {
-                    for (let c of Object.values(b)) {
-                        for (let d of c) {
-                            isPicked += parseInt(d.isPicked);
-                            noPicked += parseInt(d.noPicked);
-                        }
-                    }
+        for (let a of verifyPickStore.picklistLocationArray) {
+            if (a.picklistBinId === picklistBinId) {
+                locationNumber = a.locationArray.length;
+                for (let b of a.locationArray) {
+                    isPicked += b.isPicked;
+                    noPicked += b.noPicked
                 }
             }
         }
         Alert.alert(
             '完成分拣',
-            '分拣箱号:' + fenjianxiangId + '   库位总数:' + locationNumber.kuwei.length + '\n' + '已分拣总数:' + isPicked + '   需分拣总数:' + noPicked,
+            '分拣箱号:' + picklistBinId + '   库位总数:' + locationNumber + '\n' + '已分拣总数:' + isPicked + '   需分拣总数:' + noPicked,
             [
                 {
                     text: '确定',
@@ -267,7 +293,7 @@ class chooseLocation extends React.Component {
                         navigator.pop();
                         console.log('用户点击了确定按钮');
                         setTimeout(function () {
-                            verifyPickActions.completePicked(fenjianxiangId, verifyPickStore.pickList)
+                            verifyPickActions.completePicked(picklistBinId)
                         }, 1000);
                     }
                 },
@@ -283,122 +309,33 @@ class chooseLocation extends React.Component {
     }
 
     componentWillMount() {
-        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const {fenjianxiangId, verifyPickStore}=this.props;
-        console.log(verifyPickStore)
-        let data;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                data = a.kuwei;
+        InteractionManager.runAfterInteractions(()=> {
+            const {picklistBinId, verifyPickStore, verifyPickActions, selectStore,pickType}=this.props;
+            let isRequest = verifyPickStore.picklistLocationArray.some((item)=> {
+                return item.picklistBinId === picklistBinId
+            });
+            if (!isRequest) {
+                verifyPickActions.getLocationsByPicklistBin(picklistBinId, selectStore.facilityId,pickType)
             }
-        }
-        console.log(data);
-        this.setState({
-            dataSource: ds.cloneWithRows(data),
-        })
+        });
+
     }
 
     componentWillReceiveProps(nextProps) {
         let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-        const {fenjianxiangId, verifyPickStore}=nextProps;
-        let data;
-        for (let a of verifyPickStore.pickList) {
-            if (a.fenjianxiangId === fenjianxiangId) {
-                data = a.kuwei;
+        const {picklistBinId, verifyPickStore, selectStore}=nextProps;
+        let locationArray;
+        for (let a of verifyPickStore.picklistLocationArray) {
+            if (a.picklistBinId === picklistBinId) {
+                locationArray = a.locationArray;
             }
         }
-        console.log(data);
-        if (data) {
+        if (locationArray) {
             this.setState({
-                dataSource: ds.cloneWithRows(data),
+                dataSource: ds.cloneWithRows(locationArray),
             })
         }
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#7a7a7a',
-    },
-    main: {
-        flex: 1
-    },
-    form: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-    },
-    input: {
-        width: '100%',
-        fontSize: 24,
-        fontWeight: 'bold',
-        backgroundColor: 'rgb(44, 57, 73)',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        textAlign: 'center',
-        color: '#fff',
-    },
-    btnContainer: {
-        padding: 10,
-        flexDirection: 'column',
-    },
-    position: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    position_btn: {
-        flex: 1,
-        margin: 5,
-        borderRadius: 2,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 6,
-    },
-    position_btn_text: {
-        fontSize: 13,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        color: '#fff'
-    },
-
-    list: {
-        margin: 10,
-        backgroundColor: '#ffffff'
-    },
-    txt: {
-        textAlign: 'left',
-        textAlignVertical: 'center',
-        fontSize: 18,
-    },
-    item: {
-        padding: 15,
-        backgroundColor: 'white',
-        borderWidth: 0,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footer: {
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    emptying: {
-        flex: 1,
-        backgroundColor: '#cccccc'
-    },
-    moving: {
-        flex: 1,
-        backgroundColor: '#28a745'
-    },
-    footer_btn_text: {
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: 'white',
-        textAlign: 'center'
-    },
-});
 
 export default chooseLocation ;

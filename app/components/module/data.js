@@ -14,6 +14,11 @@ module.exports = [
     },
     {
         _id: 3,
+        text: '货运分拣',
+        type: 'VerifyShipmentsPick'
+    },
+    {
+        _id: 4,
         text: '库存查询 (暂未开放敬请期待)',
         type: 'StockQuery'
     },
