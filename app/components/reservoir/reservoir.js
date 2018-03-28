@@ -2,11 +2,12 @@
  * Created by jinlongxi on 17/11/28.
  */
 import React, {Component} from 'react';
-import Header from './reservoirHeader';
+import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import prompt from 'react-native-prompt-android';
 import Menu, {MenuItem} from 'react-native-material-menu';
 import Util from '../../utils/util';
+import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
     StyleSheet,
@@ -44,7 +45,6 @@ class Reservoir extends React.Component {
             buttonHidden: 0
         };
 
-
         this._switchBtn = this._switchBtn.bind(this);
         this._clearData = this._clearData.bind(this);
         this._modifyNumber = this._modifyNumber.bind(this);
@@ -65,41 +65,18 @@ class Reservoir extends React.Component {
         this.menu.show();
     };
 
-    _renderRow(item, sectionID, rowID, highlightRow) {
-        return (
-            <TouchableOpacity style={styles.item} onPress={this._modifyNumber.bind(this, item)}>
-                <Text style={[styles.txt,]}>({parseInt(rowID) + 1}) </Text>
-                <Text style={[{flex: 1,}, styles.txt,]}>{item.sku}</Text>
-                <Text style={{fontWeight: 'bold'}}>{item.stock}</Text>
-                <Icon/>
-            </TouchableOpacity>
-        )
-    };
-
-
-    _renderSeparator(sectionID, rowID) {
-        return (
-            <View
-                key={`${sectionID}-${rowID}`}
-                style={{
-                    height: 0.8,
-                    backgroundColor: '#ddd',
-                }}
-            />
-        );
-    }
-
     //修改扫描SKU数量
     _modifyNumber(item) {
         const {reservoirActions}=this.props;
+        const commendLocationArray = item.commendLocationSeqId.split(',');
         prompt(
-            '修改产品数量',
             item.sku,
+            commendLocationArray[0] + ' ' + commendLocationArray[1] + '\n' + commendLocationArray[2],
             [
                 {
                     text: '确定',
                     onPress: (number) => {
-                        reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number, this.state.verifySkuList);
+                        reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, item.sku, number, this.state.currentSkuList);
                         this._isFocused()
                     }
                 },
@@ -163,22 +140,28 @@ class Reservoir extends React.Component {
             case 3:
                 let skuList = this.props.reservoirState.selectSkuList;
                 let skuStock = 1;
+
                 skuList.map((item)=> {
-                    if (item.sku === text)
+                    console.log(item);
+                    if (item.sku === text || item.eanId === text) {
                         skuStock = parseInt(item.stock) + 1;
+                    }
                 });
-                return reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock, this.state.verifySkuList);
+                return reservoirActions.verifyProduct(this.props.selectStore.facilityId, this.props.reservoirState.currentPositionId, text, skuStock, this.props.reservoirState.currentSkuList);
         }
+        this._isFocused()
     }
 
     //提交表单
     _submit() {
         const text = this.state.text;
-        this.setState({
-            text: null
-        });
         if (text != null) {
+            const {reservoirActions}=this.props;
+            reservoirActions.loadingWait(true);
             this._scanning(text);
+            this.setState({
+                text: null
+            });
         }
     }
 
@@ -229,7 +212,7 @@ class Reservoir extends React.Component {
                     JsonArray.push({productId: selectSkuList[i].sku, quantityMoved: selectSkuList[i].stock})
                 }
                 Alert.alert(
-                    '移动(' + this.state.selectSkuSize + ')件',
+                    '移动操作',
                     '确定移动' + this.state.selectSkuSize + '件产品从' + this.props.reservoirState.currentPositionId + '到' + this.props.reservoirState.targetPositionId + '?',
                     [
                         {
@@ -249,16 +232,111 @@ class Reservoir extends React.Component {
     _importAllSku() {
         const {reservoirActions, reservoirState}=this.props;
         const currentSkuList = reservoirState.currentSkuList;
-        reservoirActions.loadingWait();
         let allSku = [];
         for (let a of currentSkuList) {
-            allSku.push({sku: a.productId, stock: parseInt(a.quantityOnHandTotal)})
+            allSku.push({sku: a.productId, stock: a.quantityOnHandTotal, commendLocationSeqId: a.commendLocationSeqId})
         }
         reservoirActions.importAllSku(allSku);
     }
 
+    //切换功能按钮
+    _switchBtn(currentBtn) {
+        if (this.props.reservoirState.currentPositionId == null) {
+            Alert.alert(
+                '原位置不能为空',
+                '请先扫描或输入原位置标识',
+                [
+                    {text: '确定', onPress: () => console.log('用户点击了确定按钮')},
+                ],
+                {cancelable: false}
+            );
+        } else {
+            this._isFocused();
+            this.setState({
+                selectBtn: currentBtn,
+            })
+        }
+    }
+
+    //清空数据
+    _clearData() {
+        Alert.alert(
+            '数据清空',
+            '您确定要清空？',
+            [
+                {text: '确定', onPress: () => this.props.reservoirActions.clearData()},
+                {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
+            ],
+            {cancelable: false}
+        );
+    }
+
+    //文本框获得焦点
+    _isFocused() {
+        const that = this;
+        setTimeout(function () {
+            that.refs.aTextInputRef.focus();
+            that.showMenu();
+            that.hideMenu();
+        }, 100);
+    }
+
+    //键盘物理返回事件
+    onBackAndroid = () => {
+        const {navigator} = this.props;
+        const routers = navigator.getCurrentRoutes();
+        if (routers.length > 1) {
+            navigator.pop();
+            return true;//接管默认行为
+        }
+        return false;//默认行为
+    };
+
+    //键盘弹出事件响应
+    keyboardDidShowHandler(event) {
+        console.log('键盘弹起了');
+    }
+
+    //监听键盘收起事件
+    _keyboardDidHide() {
+        console.log('键盘收起了');
+    }
+
+    _renderRow(item, sectionID, rowID, highlightRow) {
+        const {sku, stock, commendLocationSeqId}=item;
+        const commendLocationSeqArray = commendLocationSeqId ? commendLocationSeqId.split(',') : null;
+        return (
+            <TouchableOpacity style={styles.item} onPress={this._modifyNumber.bind(this, item)}>
+                <View style={{flex: 1}}>
+                    <Text style={styles.txt}>{sku}</Text>
+                    {
+                        commendLocationSeqId ? <Text style={[styles.txt, {
+                            fontSize: 14,
+                            color: '#777'
+                        }]}>库位推荐:{commendLocationSeqArray[0]}</Text> : null
+                    }
+                </View>
+                <Text style={{fontWeight: 'bold'}}>{stock}</Text>
+                <Icon/>
+            </TouchableOpacity>
+        )
+    };
+
+
+    _renderSeparator(sectionID, rowID) {
+        return (
+            <View
+                key={`${sectionID}-${rowID}`}
+                style={{
+                    height: 0.8,
+                    backgroundColor: '#ddd',
+                }}
+            />
+        );
+    }
+
     render() {
-        const {reservoirState, selectStore, reservoirActions}=this.props;
+        const {reservoirState, selectStore}=this.props;
         return (
             <View style={styles.container} {...this._panResponder.panHandlers} >
                 <Header initObj={{
@@ -273,6 +351,7 @@ class Reservoir extends React.Component {
                                 <TextInput style={styles.input}
                                            autoCapitalize='characters'
                                            placeholder={reservoirState.placeholderText}
+                                           placeholderTextColor="#7a7a7a"
                                            underlineColorAndroid='transparent'
                                            returnKeyLabel="完成"
                                            keyboardType="default"
@@ -328,7 +407,7 @@ class Reservoir extends React.Component {
                                                 style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
                                         </TouchableOpacity>
                                         {
-                                            reservoirState.currentPositionId != null ?
+                                            reservoirState.currentPositionId != null && reservoirState.currentSkuList.length < 99 ?
                                                 <TouchableOpacity
                                                     style={[styles.position_btn, {backgroundColor: '#28a745'}]}
                                                     onPress={()=>this._importAllSku()}
@@ -381,70 +460,9 @@ class Reservoir extends React.Component {
         );
     }
 
-    //切换功能按钮
-    _switchBtn(currentBtn) {
-        if (this.props.reservoirState.currentPositionId == null) {
-            Alert.alert(
-                '原位置不能为空',
-                '请先扫描或输入原位置标识',
-                [
-                    {text: '确定', onPress: () => console.log('用户点击了确定按钮')},
-                ],
-                {cancelable: false}
-            );
-        } else {
-            this._isFocused();
-            this.setState({
-                selectBtn: currentBtn,
-            })
-        }
-    }
-
-    //清空数据
-    _clearData() {
-        Alert.alert(
-            '数据清空',
-            '您确定要清空？',
-            [
-                {text: '确定', onPress: () => this.props.clearData()},
-                {text: '取消', onPress: () => console.log('用户点击了取消清空按钮')},
-            ],
-            {cancelable: false}
-        );
-    }
-
-    //文本框获得焦点
-    _isFocused() {
-        const that = this;
-        setTimeout(function () {
-            that.refs.aTextInputRef.focus();
-            that.showMenu();
-            that.hideMenu();
-        }, 500);
-    }
-
-    //键盘物理返回事件
-    onBackAndroid = () => {
-        const {navigator} = this.props;
-        const routers = navigator.getCurrentRoutes();
-        if (routers.length > 1) {
-            navigator.pop();
-            return true;//接管默认行为
-        }
-        return false;//默认行为
-    };
-
-    //键盘弹出事件响应
-    keyboardDidShowHandler(event) {
-        console.log('键盘弹起了');
-    }
-
-    //监听键盘收起事件
-    _keyboardDidHide() {
-        console.log('键盘收起了');
-    }
 
     componentWillMount() {
+        //捕捉手势  还没研究明白  先这么用着吧 后续优化
         this._panResponder = PanResponder.create({
             // 要求成为响应者：
             onStartShouldSetPanResponder: (evt, gestureState) => true,
@@ -544,91 +562,11 @@ class Reservoir extends React.Component {
             currentSkuList: nextProps.reservoirState.currentSkuList,
             text: nextProps.reservoirState.text,
             verifySkuList: nextProps.reservoirState.verifySkuList
-        })
+        });
+        if (nextProps.reservoirState.status === 'Focused') {
+            this._isFocused()
+        }
     }
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#7a7a7a',
-    },
-    main: {
-        flex: 1
-    },
-    form: {
-        backgroundColor: '#fff',
-        flexDirection: 'column',
-    },
-    input: {
-        width: '100%',
-        fontSize: 24,
-        fontWeight: 'bold',
-        backgroundColor: '#eeeeee',
-        paddingVertical: 10,
-        paddingHorizontal: 15
-    },
-    btnContainer: {
-        padding: 10,
-        flexDirection: 'column',
-    },
-    position: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    position_btn: {
-        flex: 1,
-        margin: 5,
-        borderRadius: 2,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 6,
-    },
-    position_btn_text: {
-        fontSize: 13,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        color: '#fff'
-    },
-
-    list: {
-        margin: 10,
-        backgroundColor: '#ffffff'
-    },
-    txt: {
-        textAlign: 'left',
-        textAlignVertical: 'center',
-        fontSize: 18,
-    },
-    item: {
-        padding: 15,
-        backgroundColor: 'white',
-        borderWidth: 0,
-        flexDirection: 'row',
-        alignItems: 'center'
-    },
-    footer: {
-        flexDirection: 'row',
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    emptying: {
-        flex: 1,
-        backgroundColor: '#cccccc'
-    },
-    moving: {
-        flex: 1,
-        backgroundColor: '#28a745'
-    },
-    footer_btn_text: {
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        fontSize: 18,
-        color: 'white',
-        textAlign: 'center'
-    },
-});
 
 export default Reservoir

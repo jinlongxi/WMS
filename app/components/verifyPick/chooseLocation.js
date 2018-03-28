@@ -2,7 +2,7 @@
  * Created by jinlongxi on 18/3/7.
  */
 import React, {Component} from 'react';
-import Header from '../reservoir/reservoirHeader';
+import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import ChooseSkuContainer from '../../containers/verifyPickSkuContainer';
 import Util from '../../utils/util';

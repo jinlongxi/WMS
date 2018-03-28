@@ -15,8 +15,7 @@ import {
     Image
 } from 'react-native';
 
-import Menu, {MenuItem, MenuDivider} from 'react-native-material-menu';
-import Icon from '../../components/common/left_icon';
+import Icon from './left_icon';
 import RightMenu from './right_menu';
 class reservoirHeader extends React.Component {
     constructor(props) {

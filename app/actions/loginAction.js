@@ -5,14 +5,13 @@ import * as TYPES from '../constants/ActionTypes';
 import Request from '../utils/request';
 import ServiceURl from '../utils/service';
 import DeviceStorage from '../utils/deviceStorage';
+import storage from '../utils/storage';
 
 //登录
 export function appLogin(username, password) {
     return (dispatch) => {
-
         dispatch({'type': TYPES.APP_LOGIN_DOING});
         const url = ServiceURl.wmsManager + 'login';
-
         let formData = new FormData();
         formData.append("login.username", username);
         formData.append("login.password", password);
@@ -43,6 +42,7 @@ export function appLogin(username, password) {
 
 //退出登录
 export function loginOut() {
+    //storage.clearMapForKey('storageLocation');    //清空本地保存的库位数据
     return (dispatch) => {
         dispatch({'type': TYPES.LOGIN_OUT});
     };

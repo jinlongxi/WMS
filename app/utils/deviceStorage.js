@@ -28,6 +28,7 @@ class DeviceStorage {
         return AsyncStorage.setItem(key, JSON.stringify(value));
     }
 
+
     /**
      * 更新
      * @param key
@@ -48,6 +49,10 @@ class DeviceStorage {
      */
     static delete(key) {
         return AsyncStorage.removeItem(key);
+    }
+
+    static deleteAll() {
+        return AsyncStorage.clear();
     }
 }
 

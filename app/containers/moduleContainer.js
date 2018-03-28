@@ -1,17 +1,19 @@
 /**
- * Created by jinlongxi on 17/12/27.
+ * Created by jinlongxi on 18/3/26.
  */
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import Place from '../components/place/place';
 import {bindActionCreators} from 'redux';
 import * as placeCreators from '../actions/placeAction';
+import ModuleList from '../components/module/moduleList';
 
 const mapStateToProps = (state) => {
+    const {placeStore}=state;
     return {
-        placeState: state.placeStore
+        placeStore
     }
 };
+
 const mapDispatchToProps = (dispatch) => {
     const placeActions = bindActionCreators(placeCreators, dispatch);
     return {
@@ -19,4 +21,4 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Place);
+export default connect(mapStateToProps, mapDispatchToProps)(ModuleList);

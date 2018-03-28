@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         paddingVertical: 8,
         paddingHorizontal: 10,
-        color: '#fff'
+        color: '#1d1d1d',
     },
 
     list: {
@@ -58,9 +58,10 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         textAlignVertical: 'center',
         fontSize: 18,
+        color:'#1d1d1d'
     },
     item: {
-        padding: 15,
+        padding: 10,
         backgroundColor: 'white',
         borderWidth: 0,
         flexDirection: 'row',
@@ -84,7 +85,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 10,
         fontSize: 18,
-        color: 'white',
+        color: '#1d1d1d',
         textAlign: 'center'
     },
 });

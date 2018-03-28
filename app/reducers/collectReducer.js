@@ -1,17 +1,15 @@
+/**
+ * Created by jinlongxi on 18/3/28.
+ */
 'use strict';
-
 import * as TYPES from '../constants/ActionTypes';
 const initialState = {
-    currentPositionId: null,
-    targetPositionId: null,
-    selectSkuList: [],
-    //selectSkuSize: 0,
-    placeholderText: '扫描',
-    selectBtn: 1,
-    editable: true,
-    currentSkuList: [],
-    loading: false,
-    status: null
+    currentPositionId: null,        //库位
+    selectSkuList: [],              //扫描到的SKU列表
+    placeholderText: '扫描',         //扫描框默认值
+    selectBtn: 1,                   //当前选中按钮
+    loading: false,                 //加载动画
+    status: null                    //当前运行状态
 };
 
 //判断 如果是新的SKU添加到数组中 如果已经存在数量增加
@@ -50,35 +48,7 @@ const deleteSku = (selectSkuList, action) => {
     return selectSkuList
 };
 
-//本地存库位上的产品
-const saveLocalSku = (skuList)=> {
-    let localSkuMap = new Map();
-    for (let a of skuList) {
-        const sku = a.productId.slice(0, 3);
-        if (localSkuMap.get(sku)) {
-            localSkuMap.set(sku, [...localSkuMap.get(sku), a])
-        } else {
-            localSkuMap.set(sku, [a])
-        }
-    }
-    return localSkuMap
-};
-
-//更新本地状态树上的SKULIST
-const updateCurrentSkuList = (currentSkuList, productQuantity)=> {
-    for (let a of productQuantity) {
-        for (let b of currentSkuList) {
-            if (a.productId === b.productId) {
-                b.quantityOnHandTotal = b.quantityOnHandTotal - a.quantityMoved
-            }
-        }
-    }
-    return currentSkuList.filter((item)=> {
-        return item.quantityOnHandTotal !== 0
-    })
-};
-
-export default function reservoir(state = initialState, action) {
+export default function collect(state = initialState, action) {
     switch (action.type) {
         case TYPES.ADD_CURRENT_RESERVOIR_INFO:
             return {
@@ -86,16 +56,7 @@ export default function reservoir(state = initialState, action) {
                 currentPositionId: action.currentPositionId,
                 selectBtn: 3,
                 selectSkuList: [],
-                //placeholderText: action.currentPositionId
                 loading: false
-            };
-        case TYPES.ADD_TARGET_RESERVOIR_INFO:
-            return {
-                ...state,
-                targetPositionId: action.targetPositionId,
-                selectBtn: 3,
-                loading: false
-                //placeholderText: action.targetPositionId
             };
         case TYPES.ADD_SELECT_SKU_INFO:
             return {
@@ -115,42 +76,16 @@ export default function reservoir(state = initialState, action) {
                 currentPositionId: action.locationSeqId ? action.locationSeqId : null,
                 targetPositionId: null,
                 selectSkuList: [],
-                //selectSkuSize: 0,
                 placeholderText: '扫描',
                 selectBtn: action.locationSeqId ? 3 : 1,
-                editable: true,
-                currentSkuList: action.locationSeqId ? state.currentSkuList : [],
                 verifySkuList: null,
                 loading: false
-            };
-        case TYPES.DISABLE_INPUT:
-            return {
-                ...state,
-                editable: !state.editable
-            };
-        case TYPES.SAVE_CURRENT_SKULIST:
-            return {
-                ...state,
-                currentSkuList: action.currentSkuList,
-                loading: false,
-            };
-        case TYPES.IMPORT_ALL_SKU:
-            return {
-                ...state,
-                selectSkuList: action.skuList,
-                loading: false,
             };
         case TYPES.LOADING:
             return Object.assign({}, state, {
                 loading: action.Boole,
                 status: action.Boole ? 'loading' : 'Focused'
             });
-        case TYPES.UPDATE_LOCAL_SKULIST:
-            return {
-                ...state,
-                loading: false,
-                currentSkuList: updateCurrentSkuList(state.currentSkuList, action.productQuantity),
-            };
         default:
             return state;
     }

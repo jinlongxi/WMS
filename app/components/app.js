@@ -63,17 +63,17 @@ class App extends Component {
     }
 
     componentDidMount() {
-        NetInfo.addEventListener(
-            'change',
-            this._handleFirstConnectivityChange
-        );
+        // NetInfo.addEventListener(
+        //     'change',
+        //     this._handleFirstConnectivityChange
+        // );
     }
 
     componentWillUnmount() {
-        NetInfo.removeEventListener(
-            'change',
-            this._handleFirstConnectivityChange
-        );
+        // NetInfo.removeEventListener(
+        //     'change',
+        //     this._handleFirstConnectivityChange
+        // );
     }
 }
 

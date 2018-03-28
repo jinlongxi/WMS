@@ -2,7 +2,7 @@
  * Created by jinlongxi on 18/3/7.
  */
 import React, {Component} from 'react';
-import Header from '../reservoir/reservoirHeader';
+import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import Data from './dataPick';
 import verifyPickLocationContainer from '../../containers/verifyPickLocationContainer';
@@ -167,7 +167,6 @@ class VerifyPick extends React.Component {
 
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-
             const {verifyPickStore, selectStore, verifyPickActions,pickType}=this.props;
             verifyPickActions.getPicklistBinByFacility(selectStore.facilityId,pickType);
             var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});

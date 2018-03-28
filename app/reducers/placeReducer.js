@@ -33,7 +33,8 @@ export default function place(state = initialState, action) {
         case TYPES.SAVE_SELECT_PLACELIST:
             return {
                 ...state,
-                selectPlaceList: action.selectPlaceList
+                selectPlaceList: action.selectPlaceList,
+                isLoading:false
             };
         default:
             return state;

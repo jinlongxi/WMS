@@ -35,7 +35,7 @@ class rightMenu extends React.PureComponent {
                 ref={this.setMenuRef}
                 button={
                     <TouchableOpacity onPress={this.showMenu}>
-                        <Image style={styles.right_icon} source={require('./right_menu.png')}/>
+                        <Image style={styles.right_icon} source={require('./../reservoir/right_menu.png')}/>
                     </TouchableOpacity>
                 }
             >

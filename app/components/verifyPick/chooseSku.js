@@ -2,7 +2,7 @@
  * Created by jinlongxi on 18/3/7.
  */
 import React, {Component} from 'react';
-import Header from '../reservoir/reservoirHeader';
+import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import prompt from 'react-native-prompt-android';
 import Util from '../../utils/util';
@@ -246,7 +246,7 @@ class chooseSku extends React.Component {
         for (let a of verifyPickStore.picklistLocationSkuArray) {
             if (a.picklistBinId === picklistBinId && a.locationSeqId === location) {
                 for (let b of a.SkuArray) {
-                    if (b.SKU === this.state.text) {
+                    if (b.SKU === this.state.text || b.EAN === this.state.text) {
                         hasSku = true;
                         currentSelectSku = b
                     }

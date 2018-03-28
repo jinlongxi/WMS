@@ -8,7 +8,7 @@ import React, {Component} from 'react';
 import Header from '../../containers/headerBarContainer';
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
 import Util from '../../utils/util';
-import Module from '../module/moduleList';
+import ModuleContainer from '../../containers/moduleContainer';
 import {
     AppRegistry,
     StyleSheet,
@@ -93,11 +93,10 @@ class Place extends React.Component {
             const {navigator} = this.props;
             if (navigator) {
                 navigator.push({
-                    name: 'Module',
-                    component: Module,
+                    name: 'ModuleContainer',
+                    component: ModuleContainer,
                     params: {
                         selectStore: this.state.selectId,
-                        saveSelectPlaceList: this.props.saveSelectPlaceList
                     },
                 })
             }
@@ -106,9 +105,10 @@ class Place extends React.Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-            this.props.getPlaceList()
+            const {placeActions}=this.props;
+            placeActions.getPlaceList()
         });
     }
 

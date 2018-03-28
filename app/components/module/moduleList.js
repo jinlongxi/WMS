@@ -10,6 +10,8 @@ import Header from '../common/header';
 import Icon from '../common/icon_enter';
 import Reservoir from '../../containers/reservoirContainer';
 import VerifyPick from '../../containers/verifyPickContainer';
+import StockCollect from '../../containers/collectContainer';
+import Util from '../../utils/util';
 import {
     StyleSheet,
     View,
@@ -77,7 +79,7 @@ class moduleList extends Component {
                     component: VerifyPick,
                     params: {
                         selectStore: this.props.selectStore,
-                        pickType:'订单'
+                        pickType: '订单'
                     },
                 })
             }
@@ -89,7 +91,18 @@ class moduleList extends Component {
                     component: VerifyPick,
                     params: {
                         selectStore: this.props.selectStore,
-                        pickType:'货运'
+                        pickType: '货运'
+                    },
+                })
+            }
+        }else if (item.type === 'StockCollect') {
+            const {navigator} = this.props;
+            if (navigator) {
+                navigator.push({
+                    name: 'StockCollect',
+                    component: StockCollect,
+                    params: {
+                        selectStore: this.props.selectStore,
                     },
                 })
             }
@@ -100,13 +113,15 @@ class moduleList extends Component {
         return (
             <View style={styles.container}>
                 <Header initObj={{backName: '选择仓库', barTitle: '选择模块'}} {...this.props}/>
-                <ListView
-                    dataSource={this.state.dataSource}
-                    renderRow={this._renderRow}
-                    renderSeparator={this._renderSeparator}
-                    showsVerticalScrollIndicator={false}
-                    showsHorizontalScrollIndicator={false}
-                />
+                {
+                    this.props.placeStore.isLoading ? Util.loading : <ListView
+                        dataSource={this.state.dataSource}
+                        renderRow={this._renderRow}
+                        renderSeparator={this._renderSeparator}
+                        showsVerticalScrollIndicator={false}
+                        showsHorizontalScrollIndicator={false}
+                    />
+                }
             </View>
         );
     }
@@ -122,11 +137,11 @@ class moduleList extends Component {
         return false;//默认行为
     };
 
-    componentDidMount() {
+    componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
             if (Platform.OS === 'android') {
                 BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
-                this.props.saveSelectPlaceList(this.props.selectStore.facilityId)
+                this.props.placeActions.saveSelectPlaceList(this.props.selectStore.facilityId)
             }
         });
     }

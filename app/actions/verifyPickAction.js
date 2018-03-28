@@ -150,11 +150,12 @@ export const getSKUListByLocationSeqId = (picklistBinId, facilityId, locationSeq
                     const {locationInfo}=response;
                     let pickListLocationSkuObject = {};
                     let SkuArray = [];
-                    for (let a in locationInfo.skuMap) {
+                    for (let a of locationInfo.skuList) {
                         SkuArray.push({
-                            'SKU': a,
+                            'SKU': a.productId,
+                            'EAN': a.ean,
                             'locationSeqId': locationSeqId,
-                            'noPicked': locationInfo.skuMap[a],
+                            'noPicked': a.quantity,
                             'isPicked': 0
                         })
                     }
@@ -173,11 +174,12 @@ export const getSKUListByLocationSeqId = (picklistBinId, facilityId, locationSeq
                     const {locationInfo}=response;
                     let pickListLocationSkuObject = {};
                     let SkuArray = [];
-                    for (let a in locationInfo.skuMap) {
+                    for (let a of locationInfo.skuList) {
                         SkuArray.push({
-                            'SKU': a,
+                            'SKU': a.productId,
+                            'EAN': a.ean,
                             'locationSeqId': locationSeqId,
-                            'noPicked': locationInfo.skuMap[a],
+                            'noPicked': a.quantity,
                             'isPicked': 0
                         })
                     }
