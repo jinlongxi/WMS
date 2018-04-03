@@ -101,8 +101,8 @@ class chooseSku extends React.Component {
     //文本框获得焦点
     _isFocused() {
         const that = this;
+        that.refs.aTextInputRef.focus();
         setTimeout(function () {
-            that.refs.aTextInputRef.focus();
             that.showMenu();
             that.hideMenu();
         }, 500);
@@ -164,12 +164,12 @@ class chooseSku extends React.Component {
     }
 
     render() {
-        const {selectLocation, verifyPickStore, selectStore, location, picklistBinId}=this.props;
+        const {selectLocation, verifyPickStore, selectStore, location, picklistBinId,pickType}=this.props;
         return (
             <View style={styles.container}>
                 <Header initObj={{
                     backName: '',
-                    barTitle: '订单分拣－选择商品',
+                    barTitle: pickType+'分拣－选择商品',
                     barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
@@ -240,27 +240,44 @@ class chooseSku extends React.Component {
 
     //扫描或输入分拣箱单
     _submit() {
-        const {verifyPickStore, picklistBinId, location}=this.props;
-        let hasSku = false;
-        let currentSelectSku;
-        for (let a of verifyPickStore.picklistLocationSkuArray) {
-            if (a.picklistBinId === picklistBinId && a.locationSeqId === location) {
-                for (let b of a.SkuArray) {
-                    if (b.SKU === this.state.text || b.EAN === this.state.text) {
-                        hasSku = true;
-                        currentSelectSku = b
+        if (this.state.text) {
+            const {verifyPickStore, picklistBinId, location, verifyPickActions}=this.props;
+            let hasSku = false;
+            let currentSelectSku;
+            for (let a of verifyPickStore.picklistLocationSkuArray) {
+                if (a.picklistBinId === picklistBinId && a.locationSeqId === location) {
+                    for (let b of a.SkuArray) {
+                        if (b.SKU === this.state.text || b.EAN === this.state.text) {
+                            hasSku = true;
+                            currentSelectSku = b
+                        }
                     }
                 }
             }
-        }
-        if (hasSku) {
-            this._modifyNumber(currentSelectSku)
+            if (hasSku) {
+                verifyPickActions.changeisPicked(picklistBinId, currentSelectSku.locationSeqId, currentSelectSku.SKU, currentSelectSku.isPicked + 1, currentSelectSku.isPicked);
+            } else {
+                Alert.alert(
+                    'SKU:' + this.state.text,
+                    '当前库位中没有这个SKU',
+                    [
+                        {
+                            text: '确定',
+                            onPress: ()=> {
+                                this._isFocused()
+                            }
+                        },
+                    ],
+                    {cancelable: false}
+                );
+                this._isFocused()
+            }
+            this.setState({
+                text: null
+            });
         } else {
-            alert('当前库位中没有这个SKU')
+            this._isFocused()
         }
-        this.setState({
-            text: null
-        })
     }
 
     //修改扫描SKU数量
@@ -269,7 +286,7 @@ class chooseSku extends React.Component {
         const {selectStore, verifyPickActions, picklistBinId}=this.props;
         prompt(
             '修改产品数量',
-            item.sku,
+            'SKU: ' + SKU,
             [
                 {
                     text: '确定',

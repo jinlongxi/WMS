@@ -87,7 +87,6 @@ export default function reservoir(state = initialState, action) {
                 selectBtn: 3,
                 selectSkuList: [],
                 //placeholderText: action.currentPositionId
-                loading: false
             };
         case TYPES.ADD_TARGET_RESERVOIR_INFO:
             return {
@@ -133,6 +132,7 @@ export default function reservoir(state = initialState, action) {
                 ...state,
                 currentSkuList: action.currentSkuList,
                 loading: false,
+                status: 'Focused'
             };
         case TYPES.IMPORT_ALL_SKU:
             return {

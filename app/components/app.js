@@ -3,7 +3,6 @@
  * https://github.com/facebook/react-native
  * @flow
  */
-
 import React, {Component} from 'react';
 import Navigation from '../utils/navigation';
 import LoginContainer from '../containers/loginContainer';

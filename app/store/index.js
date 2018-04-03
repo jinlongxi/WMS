@@ -21,7 +21,8 @@ const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
 export default function configureStore() {
     const store = createStoreWithMiddleware(rootReducer);
     store.close = () => {
-        store.dispatch(END)
+        store.dispatch(END);
+        console.log('stop-dispatch')
     };
     return store;
 }

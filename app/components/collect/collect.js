@@ -25,12 +25,9 @@ import {
     Switch,
     ListView,
     KeyboardAvoidingView,
-    BackHandler,
     Platform,
-    Keyboard,
     InteractionManager,
     AlertIOS,
-    PanResponder
 } from 'react-native';
 class Collect extends React.Component {
     constructor(props) {
@@ -54,111 +51,6 @@ class Collect extends React.Component {
         this._renderRow = this._renderRow.bind(this);
         this._isFocused = this._isFocused.bind(this);
         this._multiStockCollect = this._multiStockCollect.bind(this)
-    }
-
-    render() {
-        const {collectState, selectStore}=this.props;
-        return (
-            <View style={styles.container}>
-                <Header initObj={{
-                    backName: '选择模块',
-                    barTitle: '商品库位采集',
-                    barTitle_small: selectStore.facilityName
-                }} {...this.props}/>
-                {
-                    collectState.loading ? Util.loading :
-                        <View style={styles.main}>
-                            <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
-                                <TextInput style={styles.input}
-                                           autoCapitalize='characters'
-                                           placeholder={collectState.placeholderText}
-                                           placeholderTextColor="#7a7a7a"
-                                           underlineColorAndroid='transparent'
-                                           returnKeyLabel="完成"
-                                           keyboardType="default"
-                                           autoFocus={true}
-                                           editable={this.state.editable}
-                                           multiline={false}
-                                           value={this.state.text}
-                                           onChangeText={(text)=> {
-                                               this.setState({
-                                                   text: text
-                                               })
-                                           }}
-                                           onEndEditing={(text)=> {
-
-                                           }}
-                                           onSubmitEditing={()=> {
-                                               this._submit()
-                                           }}
-                                           onBlur={this._isFocused.bind(this)}
-                                           ref="aTextInputRef"
-                                />
-                                <View style={styles.btnContainer}>
-                                    <View style={styles.position}>
-                                        <TouchableOpacity
-                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 1 ? '#F37B22' : '#cccccc'}]}
-                                            onPress={()=> {
-                                                this._switchBtn(1)
-                                            }}>
-                                            <Text style={styles.position_btn_text}>库位</Text>
-                                            <Text
-                                                style={styles.position_btn_text}>{collectState.currentPositionId}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View style={styles.position}>
-                                        <TouchableOpacity
-                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 3 ? '#F37B22' : '#cccccc'}]}
-                                            onPress={()=> {
-                                                this._switchBtn(3)
-                                            }}>
-                                            <Text style={styles.position_btn_text}>扫描产品</Text>
-                                            <Text
-                                                style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </View>
-                            {
-                                collectState.selectSkuList.length > 0 ?
-                                    <View style={{flex: 1}}>
-                                        <ListView
-                                            style={styles.list}
-                                            dataSource={this.state.dataSource}
-                                            renderRow={this._renderRow}
-                                            renderSeparator={this._renderSeparator}
-                                            showsHorizontalScrollIndicator={false}
-                                            showsVerticalScrollIndicator={false}
-                                            keyboardShouldPersistTaps='always'
-                                        />
-                                    </View>
-                                    : null
-                            }
-                        </View>
-                }
-                <Menu
-                    ref={this.setMenuRef}
-                    button={
-                        <TouchableOpacity onPress={this.showMenu}>
-                        </TouchableOpacity>
-                    }
-                >
-                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
-                </Menu>
-                <View style={styles.footer}>
-                    <TouchableOpacity style={styles.moving} onPress={()=> {
-                        this._multiStockCollect()
-                    }}>
-                        <Text style={styles.footer_btn_text}>保存</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.emptying} onPress={()=> {
-                        this._clearData()
-                    }}>
-                        <Text style={styles.footer_btn_text}>清空</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        );
     }
 
     //这个地方太恶心了  是为了挤掉系统键盘后续优化
@@ -347,25 +239,113 @@ class Collect extends React.Component {
         }, 100);
     }
 
-    //键盘物理返回事件
-    onBackAndroid = () => {
-        const {navigator} = this.props;
-        const routers = navigator.getCurrentRoutes();
-        if (routers.length > 1) {
-            navigator.pop();
-            return true;//接管默认行为
-        }
-        return false;//默认行为
-    };
+    render() {
+        const {collectState, selectStore}=this.props;
+        return (
+            <View style={styles.container}>
+                <Header initObj={{
+                    backName: '选择模块',
+                    barTitle: '商品库位采集',
+                    barTitle_small: selectStore.facilityName
+                }} {...this.props}/>
+                {
+                    collectState.loading ? Util.loading :
+                        <View style={styles.main}>
+                            <View style={[styles.form, {height: this.state.buttonViewHeight}]}>
+                                <TextInput style={styles.input}
+                                           autoCapitalize='characters'
+                                           placeholder={collectState.placeholderText}
+                                           placeholderTextColor="#7a7a7a"
+                                           underlineColorAndroid='transparent'
+                                           returnKeyLabel="完成"
+                                           keyboardType="default"
+                                           autoFocus={true}
+                                           editable={this.state.editable}
+                                           multiline={false}
+                                           value={this.state.text}
+                                           onChangeText={(text)=> {
+                                               this.setState({
+                                                   text: text
+                                               })
+                                           }}
+                                           onEndEditing={(text)=> {
 
-    //键盘弹出事件响应
-    keyboardDidShowHandler(event) {
-        //console.log('键盘弹起了');
-    }
+                                           }}
+                                           onSubmitEditing={()=> {
+                                               this._submit()
+                                           }}
+                                           onBlur={this._isFocused.bind(this)}
+                                           ref="aTextInputRef"
+                                />
+                                <View style={styles.btnContainer}>
+                                    <View style={styles.position}>
+                                        <TouchableOpacity
+                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 1 ? '#F37B22' : '#cccccc'}]}
+                                            onPress={()=> {
+                                                this._switchBtn(1)
+                                            }}>
+                                            <Text style={styles.position_btn_text}>库位</Text>
+                                            <Text
+                                                style={styles.position_btn_text}>{collectState.currentPositionId}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.position}>
+                                        <TouchableOpacity
+                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 3 ? '#F37B22' : '#cccccc'}]}
+                                            onPress={()=> {
+                                                this._switchBtn(3)
+                                            }}>
+                                            <Text style={styles.position_btn_text}>扫描产品</Text>
+                                            <Text
+                                                style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                            {
+                                collectState.selectSkuList.length > 0 ?
+                                    <View style={{flex: 1}}>
+                                        <ListView
+                                            style={styles.list}
+                                            dataSource={this.state.dataSource}
+                                            renderRow={this._renderRow}
+                                            renderSeparator={this._renderSeparator}
+                                            showsHorizontalScrollIndicator={false}
+                                            showsVerticalScrollIndicator={false}
+                                            keyboardShouldPersistTaps='always'
+                                        />
+                                    </View>
+                                    : null
+                            }
 
-    //监听键盘收起事件
-    _keyboardDidHide() {
-        //console.log('键盘收起了');
+                        </View>
+                }
+                <Menu
+                    ref={this.setMenuRef}
+                    button={
+                        <TouchableOpacity onPress={this.showMenu}>
+                        </TouchableOpacity>
+                    }
+                >
+                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
+                </Menu>
+                {
+                    collectState.loading ? null :
+                        <View style={styles.footer}>
+                            <TouchableOpacity style={styles.moving} onPress={()=> {
+                                this._multiStockCollect()
+                            }}>
+                                <Text style={styles.footer_btn_text}>保存</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.emptying} onPress={()=> {
+                                this._clearData()
+                            }}>
+                                <Text style={styles.footer_btn_text}>清空</Text>
+                            </TouchableOpacity>
+                        </View>
+                }
+            </View>
+        );
     }
 
     componentWillMount() {
@@ -374,30 +354,10 @@ class Collect extends React.Component {
         // collectActions.pullData()
     }
 
-    componentDidMount() {
-        InteractionManager.runAfterInteractions(()=> {
-            if (Platform.OS === 'android') {
-                BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
-            }
-            //监听键盘弹出事件
-            this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',
-                this.keyboardDidShowHandler.bind(this));
-            this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
-        });
-    }
-
     componentWillUnmount() {
-        const {collectActions}=this.props;
-        if (Platform.OS === 'android') {
-            BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
-        }
         //清空数据
+        const {collectActions}=this.props;
         collectActions.clearData();
-        //卸载键盘弹出事件监听
-        if (this.keyboardDidShowListener != null) {
-            this.keyboardDidShowListener.remove();
-            this.keyboardDidHideListener.remove();
-        }
     }
 
     componentWillReceiveProps(nextProps) {

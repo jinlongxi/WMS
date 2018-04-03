@@ -62,7 +62,6 @@ export const getPicklistBinByFacility = (facilityId, pickType) => {
             } else if (pickType === '货运') {
                 url = ServiceURl.wmsManager + 'mobile.findShipmentsByFacilityId?login.username=' + userInfo.username + '&login.password=' + userInfo.password +
                     '&facilityId=' + facilityId;
-                console.log(url);
                 Request.postRequest(url, null, function (response) {
                     console.log('查询仓库中所有的货运分拣箱+分拣箱的所有数量汇总:' + JSON.stringify(response));
                     const {shipmentList}=response;

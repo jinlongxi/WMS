@@ -4,10 +4,10 @@
 import React, {Component} from 'react';
 import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
-import Data from './dataPick';
 import verifyPickLocationContainer from '../../containers/verifyPickLocationContainer';
 import Util from '../../utils/util';
 import styles from '../../styles/verifyPickStyles';
+import Menu, {MenuItem} from 'react-native-material-menu';
 import {
     AppRegistry,
     StyleSheet,
@@ -81,12 +81,12 @@ class VerifyPick extends React.Component {
     }
 
     render() {
-        const {verifyPickStore, selectStore,pickType}=this.props;
+        const {verifyPickStore, selectStore, pickType}=this.props;
         return (
             <View style={styles.container}>
                 <Header initObj={{
                     backName: '',
-                    barTitle: pickType+'分拣-选择分拣箱单',
+                    barTitle: pickType + '分拣-选择分拣箱单',
                     barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
@@ -126,8 +126,17 @@ class VerifyPick extends React.Component {
                                 showsHorizontalScrollIndicator={false}
                                 showsVerticalScrollIndicator={false}
                                 keyboardShouldPersistTaps='always'
-                            /> : Util.loading
+                            /> : <Text style={{color:'white'}}>没有相关数据</Text>
                     }
+                    <Menu
+                        ref={this.setMenuRef}
+                        button={
+                            <TouchableOpacity onPress={this.showMenu}>
+                            </TouchableOpacity>
+                        }
+                    >
+                        <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
+                    </Menu>
                 </View>
             </View>
         );
@@ -135,23 +144,63 @@ class VerifyPick extends React.Component {
 
     //扫描或输入分拣箱单
     _submit() {
-        const {verifyPickStore}=this.props;
-        let selectData = verifyPickStore.picklistArray.filter((item, index)=> {
-            return item.picklistBinId === this.state.text
-        });
-        if (selectData.length > 0) {
-            this._choosePickList(this.state.text)
+        if (this.state.text) {
+            const {verifyPickStore}=this.props;
+            let selectData = verifyPickStore.picklistArray.filter((item, index)=> {
+                return item.picklistBinId === this.state.text
+            });
+            if (selectData.length > 0) {
+                this._choosePickList(this.state.text)
+            } else {
+                this._isFocused();
+                Alert.alert(
+                    '分拣箱:' + this.state.text,
+                    '没有这个分拣箱单',
+                    [
+                        {
+                            text: '确定',
+                            onPress: ()=> {
+                                this._isFocused()
+                            }
+                        },
+                    ],
+                    {cancelable: false}
+                );
+
+            }
+            this.setState({
+                text: null
+            })
         } else {
-            alert('没有这个分拣箱单')
+            this._isFocused()
         }
-        this.setState({
-            text: null
-        })
+    }
+
+    //这个地方太恶心了  是为了挤掉系统键盘后续优化
+    menu = null;
+    setMenuRef = ref => {
+        this.menu = ref;
+    };
+    hideMenu = () => {
+        this.menu.hide();
+    };
+    showMenu = () => {
+        this.menu.show();
+    };
+
+    //文本框获得焦点
+    _isFocused() {
+        const that = this;
+        that.refs.aTextInputRef.focus();
+        setTimeout(function () {
+            that.showMenu();
+            that.hideMenu();
+        }, 500);
     }
 
     //进入对应分拣箱单页面
     _choosePickList(picklistBinId) {
-        const {navigator, selectStore,pickType} = this.props;
+        const {navigator, selectStore, pickType} = this.props;
         if (navigator) {
             navigator.push({
                 name: 'verifyPickLocationContainer',
@@ -159,7 +208,7 @@ class VerifyPick extends React.Component {
                 params: {
                     picklistBinId: picklistBinId,
                     selectStore: selectStore,
-                    pickType:pickType
+                    pickType: pickType
                 },
             })
         }
@@ -167,8 +216,8 @@ class VerifyPick extends React.Component {
 
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-            const {verifyPickStore, selectStore, verifyPickActions,pickType}=this.props;
-            verifyPickActions.getPicklistBinByFacility(selectStore.facilityId,pickType);
+            const {verifyPickStore, selectStore, verifyPickActions, pickType}=this.props;
+            verifyPickActions.getPicklistBinByFacility(selectStore.facilityId, pickType);
             var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
             this.setState({
                 dataSource: ds.cloneWithRows(verifyPickStore.picklistArray),

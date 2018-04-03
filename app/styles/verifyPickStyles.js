@@ -18,16 +18,16 @@ const styles = StyleSheet.create({
     },
     input: {
         width: '100%',
-        fontSize: 24,
+        fontSize: 18,
         fontWeight: 'bold',
         backgroundColor: 'rgb(44, 57, 73)',
-        paddingVertical: 10,
-        paddingHorizontal: 15,
+        paddingVertical: 5,
+        paddingHorizontal: 8,
         textAlign: 'center',
         color: '#fff',
     },
     btnContainer: {
-        padding: 10,
+        padding: 5,
         flexDirection: 'column',
     },
     position: {
@@ -37,31 +37,31 @@ const styles = StyleSheet.create({
     },
     position_btn: {
         flex: 1,
-        margin: 5,
+        margin: 2,
         borderRadius: 2,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 6,
+        padding: 3,
     },
     position_btn_text: {
         fontSize: 13,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
+        paddingVertical: 4,
+        paddingHorizontal: 5,
         color: '#1d1d1d',
     },
 
     list: {
-        margin: 10,
+        margin: 5,
         backgroundColor: '#ffffff'
     },
     txt: {
         textAlign: 'left',
         textAlignVertical: 'center',
-        fontSize: 18,
+        fontSize: 14,
         color:'#1d1d1d'
     },
     item: {
-        padding: 10,
+        padding: 3,
         backgroundColor: 'white',
         borderWidth: 0,
         flexDirection: 'row',
@@ -82,9 +82,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#28a745'
     },
     footer_btn_text: {
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        fontSize: 18,
+        paddingVertical: 4,
+        paddingHorizontal: 5,
+        fontSize: 14,
         color: '#1d1d1d',
         textAlign: 'center'
     },

@@ -281,17 +281,6 @@ class Reservoir extends React.Component {
         }, 100);
     }
 
-    //键盘物理返回事件
-    onBackAndroid = () => {
-        const {navigator} = this.props;
-        const routers = navigator.getCurrentRoutes();
-        if (routers.length > 1) {
-            navigator.pop();
-            return true;//接管默认行为
-        }
-        return false;//默认行为
-    };
-
     //键盘弹出事件响应
     keyboardDidShowHandler(event) {
         console.log('键盘弹起了');
@@ -370,7 +359,7 @@ class Reservoir extends React.Component {
                                            onSubmitEditing={()=> {
                                                this._submit()
                                            }}
-                                           onBlur={this._isFocused.bind(this)}
+                                           onBlur={this._isFocused}
                                            ref="aTextInputRef"
                                 />
                                 <View style={styles.btnContainer}>
@@ -407,13 +396,14 @@ class Reservoir extends React.Component {
                                                 style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
                                         </TouchableOpacity>
                                         {
-                                            reservoirState.currentPositionId != null && reservoirState.currentSkuList.length < 99 ?
+                                            reservoirState.currentPositionId == null || reservoirState.currentSkuList.length > 99 ?
+                                                null :
                                                 <TouchableOpacity
                                                     style={[styles.position_btn, {backgroundColor: '#28a745'}]}
                                                     onPress={()=>this._importAllSku()}
                                                 >
                                                     <Text style={styles.position_btn_text}>导出原位置所有商品</Text>
-                                                </TouchableOpacity> : null
+                                                </TouchableOpacity>
                                         }
                                     </View>
                                 </View>
@@ -520,9 +510,6 @@ class Reservoir extends React.Component {
 
     componentDidMount() {
         InteractionManager.runAfterInteractions(()=> {
-            if (Platform.OS === 'android') {
-                BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
-            }
             //监听键盘弹出事件
             this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',
                 this.keyboardDidShowHandler.bind(this));
@@ -532,10 +519,6 @@ class Reservoir extends React.Component {
 
     componentWillUnmount() {
         const {reservoirActions}=this.props;
-        if (Platform.OS === 'android') {
-            console.log('用户点击返回');
-            BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
-        }
         //清空数据
         reservoirActions.clearData();
         //卸载键盘弹出事件监听

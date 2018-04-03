@@ -21,7 +21,10 @@ import {
     ScrollView,
     Alert,
     Switch,
-    InteractionManager
+    InteractionManager,
+    Platform,
+    BackHandler,
+    AppState
 } from 'react-native';
 
 class Place extends React.Component {
@@ -105,6 +108,27 @@ class Place extends React.Component {
         }
     }
 
+    //键盘物理返回事件
+    onBackAndroid = () => {
+        const {navigator} = this.props;
+        const routers = navigator.getCurrentRoutes();
+        console.log('监听返回事件' + routers.length);
+        if (routers.length > 1) {
+            navigator.pop();
+            return true;//接管默认行为
+        } else {
+            return false;//默认行为
+        }
+    };
+
+    //监听APP运行状态
+    _handleAppStateChange = (nextAppState) => {
+        console.log('app运行状态' + nextAppState);
+        if (nextAppState === 'background') {
+            AppState.exitApp()
+        }
+    };
+
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
             const {placeActions}=this.props;
@@ -117,6 +141,23 @@ class Place extends React.Component {
             placeList: nextProps.placeState.placeList,
             isLoading: nextProps.placeState.isLoading
         })
+    }
+
+    componentDidMount() {
+        InteractionManager.runAfterInteractions(()=> {
+            if (Platform.OS === 'android') {
+                BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
+                AppState.addEventListener('change', this._handleAppStateChange);
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        if (Platform.OS === 'android') {
+            console.log('卸载掉监听');
+            BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
+            AppState.removeEventListener('change', this._handleAppStateChange);
+        }
     }
 }
 

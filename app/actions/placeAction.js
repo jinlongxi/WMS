@@ -61,7 +61,7 @@ export function saveSelectPlaceList(facilityId) {
         }).then(ret => {
             dispatch({'type': TYPES.SAVE_SELECT_PLACELIST, selectPlaceList: ret});
         }).catch(err => {
-            console.log(err);
+            //console.log(err);
             dispatch({'type': TYPES.GET_PLACELIST_DOING});
             const url = ServiceURl.wmsManager + 'find';
             DeviceStorage.get('userInfo').then((userInfo)=> {

@@ -6,6 +6,7 @@ import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import ChooseSkuContainer from '../../containers/verifyPickSkuContainer';
 import Util from '../../utils/util';
+import Menu, {MenuItem} from 'react-native-material-menu';
 import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
@@ -43,7 +44,8 @@ class chooseLocation extends React.Component {
             dataSource: ds.cloneWithRows(locationArray),
             text: null,
         };
-        this._renderRow = this._renderRow.bind(this)
+        this._renderRow = this._renderRow.bind(this);
+        this._isFocused = this._isFocused.bind(this)
     }
 
     _renderRow(item, sectionID, rowID, highlightRow) {
@@ -92,7 +94,6 @@ class chooseLocation extends React.Component {
         for (let a of verifyPickStore.picklistLocationArray) {
             if (a.picklistBinId === picklistBinId) {
                 locationArray = a.locationArray;
-                console.log(locationArray);
                 for (let b of locationArray) {
                     noPicked += b.noPicked;
                     isPicked += b.isPicked
@@ -158,12 +159,12 @@ class chooseLocation extends React.Component {
     }
 
     render() {
-        const {selectStore, verifyPickStore, picklistBinId, verifyPickActions, navigator}=this.props;
+        const {selectStore, verifyPickStore, picklistBinId, pickType}=this.props;
         return (
             <View style={styles.container}>
                 <Header initObj={{
                     backName: '',
-                    barTitle: '订单分拣－选择库位',
+                    barTitle: pickType + '分拣－选择库位',
                     barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
                 <View style={styles.main}>
@@ -215,6 +216,15 @@ class chooseLocation extends React.Component {
                     }
 
                 </View>
+                <Menu
+                    ref={this.setMenuRef}
+                    button={
+                        <TouchableOpacity onPress={this.showMenu}>
+                        </TouchableOpacity>
+                    }
+                >
+                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
+                </Menu>
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.moving}
                                       onPress={()=>this._completePick.bind(this)()}>
@@ -230,7 +240,7 @@ class chooseLocation extends React.Component {
 
     //选中库位进入分拣产品页面
     _chooseLocation(location) {
-        const {navigator, verifyPickActions, verifyPickStore, selectStore, picklistBinId,pickType} = this.props;
+        const {navigator, selectStore, picklistBinId, pickType} = this.props;
         if (navigator) {
             navigator.push({
                 name: 'ChooseSkuContainer',
@@ -247,25 +257,63 @@ class chooseLocation extends React.Component {
 
     //扫描或输入分拣箱单
     _submit() {
-        const {verifyPickStore, picklistBinId}=this.props;
-        let hasLocation = false;
-        for (let a of verifyPickStore.picklistLocationArray) {
-            if (a.picklistBinId === picklistBinId) {
-                for (let b of a.locationArray) {
-                    if (b.location === this.state.text) {
-                        hasLocation = true
+        if (this.state.text) {
+            const {verifyPickStore, picklistBinId}=this.props;
+            let hasLocation = false;
+            for (let a of verifyPickStore.picklistLocationArray) {
+                if (a.picklistBinId === picklistBinId) {
+                    for (let b of a.locationArray) {
+                        if (b.location === this.state.text) {
+                            hasLocation = true
+                        }
                     }
                 }
             }
-        }
-        if (hasLocation) {
-            this._chooseLocation(this.state.text)
+            if (hasLocation) {
+                this._chooseLocation(this.state.text)
+            } else {
+                Alert.alert(
+                    '库位:' + this.state.text,
+                    '当前分拣箱中没有这个库位',
+                    [
+                        {
+                            text: '确定',
+                            onPress: ()=> {
+                                this._isFocused()
+                            }
+                        },
+                    ],
+                    {cancelable: false}
+                );
+            }
+            this.setState({
+                text: null
+            })
         } else {
-            alert('当前分拣箱中没有这个库位')
+            this._isFocused()
         }
-        this.setState({
-            text: null
-        })
+    }
+
+    //这个地方太恶心了  是为了挤掉系统键盘后续优化
+    menu = null;
+    setMenuRef = ref => {
+        this.menu = ref;
+    };
+    hideMenu = () => {
+        this.menu.hide();
+    };
+    showMenu = () => {
+        this.menu.show();
+    };
+
+    //文本框获得焦点
+    _isFocused() {
+        const that = this;
+        that.refs.aTextInputRef.focus();
+        setTimeout(function () {
+            that.showMenu();
+            that.hideMenu();
+        }, 500);
     }
 
     //完成分拣
@@ -310,12 +358,12 @@ class chooseLocation extends React.Component {
 
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-            const {picklistBinId, verifyPickStore, verifyPickActions, selectStore,pickType}=this.props;
+            const {picklistBinId, verifyPickStore, verifyPickActions, selectStore, pickType}=this.props;
             let isRequest = verifyPickStore.picklistLocationArray.some((item)=> {
                 return item.picklistBinId === picklistBinId
             });
             if (!isRequest) {
-                verifyPickActions.getLocationsByPicklistBin(picklistBinId, selectStore.facilityId,pickType)
+                verifyPickActions.getLocationsByPicklistBin(picklistBinId, selectStore.facilityId, pickType)
             }
         });
 

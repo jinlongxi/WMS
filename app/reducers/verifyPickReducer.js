@@ -10,7 +10,7 @@ const initialState = {
     picklistArray: [],
     picklistLocationArray: [],
     picklistLocationSkuArray: [],
-    pickType: ''
+    pickType: '',
 };
 
 //修改已分拣SKU数量
@@ -86,6 +86,11 @@ export default function verifyPick(state = initialState, action) {
                 picklistLocationArray: changeSkuPickedNumber(state, action, 'picklistLocationArray'),
                 picklistArray: changeSkuPickedNumber(state, action, 'picklistArray')
             };
+        case TYPES.LOADING:
+            return {
+                ...state,
+                loading: action.Boole
+            };
         //完成分拣
         case TYPES.COMPLETE_PICKED:
             return {
@@ -100,7 +105,7 @@ export default function verifyPick(state = initialState, action) {
                 picklistArray: action.picklistArray,
                 picklistLocationArray: [],
                 picklistLocationSkuArray: [],
-                pickType: action.pickType
+                pickType: action.pickType,
             };
         //设置分拣箱库位数组
         case TYPES.SET_PICKLIST_LOCATION_ARRAY:

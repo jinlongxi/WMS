@@ -22,7 +22,7 @@ export default class Navigation extends Component {
                 initialRoute={rootRoute}
                 configureScene={() => ({
                     ...Navigator.Navigator.SceneConfigs.PushFromRight,//转场动画
-                    gestures: {pop: false}
+                    gestures: {pop: true}
                 })}
                 renderScene={(route, navigator) => {
                     let Component = route.component;

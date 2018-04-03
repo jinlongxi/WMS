@@ -108,7 +108,7 @@ export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuL
             if (stock === 0) {
                 dispatch(deleteSelectSku(selectSku.productId));
             } else {
-                dispatch(addSelectSku(selectSku.productId, stock, selectSku.commendLocationSeqId, selectSku.eanId));
+                dispatch(addSelectSku(selectSku.productId, stock, selectSku.commendLocationSeqId, selectSku.idValue));
             }
         } else {
             Sound.playSoundBundleError();
@@ -135,7 +135,6 @@ export const multiStockCollect = (facilityId, locationSeqId, productQuantity, se
     return (dispatch) => {
         dispatch(loadingWait(true));
         const url = ServiceURl.wmsManager + 'multiAddLocationProductMoveRecords';
-        console.log(url);
         DeviceStorage.get('userInfo').then((userInfo)=> {
             let formData = new FormData();
             formData.append("login.username", userInfo.username);
@@ -145,14 +144,10 @@ export const multiStockCollect = (facilityId, locationSeqId, productQuantity, se
             formData.append("equipment", DeviceInfo.getUniqueID());
             formData.append("partyId", userInfo.partyId);
             formData.append("productQuantity", JSON.stringify(productQuantity));
-            console.log(formData);
             Request.postRequest(url, formData, function (response) {
                 console.log('保存采集数据:' + JSON.stringify(response));
-                const {_ERROR_MESSAGE_:_ERROR_MESSAGE_}=response;
-                if (_ERROR_MESSAGE_) {
-                    console.log(_ERROR_MESSAGE_);
-                    alert(_ERROR_MESSAGE_)
-                } else {
+                const {_ERROR_MESSAGE_}=response;
+                if (!_ERROR_MESSAGE_) {
                     Alert.alert(
                         '保存成功',
                         '当前保存成功数量:' + selectSkuSize,
@@ -160,17 +155,20 @@ export const multiStockCollect = (facilityId, locationSeqId, productQuantity, se
                             {
                                 text: '确定',
                                 onPress: () => {
-                                    console.log('点击确定');
-                                    dispatch(clearData(locationSeqId));
+                                    dispatch(clearData());
                                     dispatch(loadingWait(false));
                                 }
                             },
                         ],
                         {cancelable: false}
                     );
+                } else {
+                    alert('保存采集数据失败');
+                    dispatch(loadingWait(false));
                 }
             }, function (err) {
                 console.log(JSON.stringify(err));
+                alert('保存失败')
             });
         })
     }
@@ -183,20 +181,23 @@ export const pullData = ()=> {
         const url = ServiceURl.wmsManager + 'find';
         DeviceStorage.get('userInfo').then((userInfo)=> {
             let InputFields = {
-                goodIdentificationTypeId: 'EAN',
+                //goodIdentificationTypeId: 'EAN',
                 productId: '181',
                 productId_op: 'contains',
+                productTypeId: 'finished_good',
+                isVirtual: 'N'
             };
             let formData = new FormData();
             formData.append("login.username", userInfo.username);
             formData.append("login.password", userInfo.password);
-            formData.append("entityName", 'GoodIdentification');
+            formData.append("entityName", 'ProductAndGoodIdentification');
             formData.append("noConditionFind", 'Y');
             formData.append("viewIndex", 0);
             formData.append("viewSize", 99999);
             formData.append("inputFields", JSON.stringify(InputFields));
+            console.log(formData);
             Request.postRequest(url, formData, function (response) {
-                console.log('临时拉去的数据:' + JSON.stringify(response));
+                console.log('临时拉取的数据:' + JSON.stringify(response));
             }, function (err) {
                 console.log(JSON.stringify(err));
             });

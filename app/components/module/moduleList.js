@@ -21,7 +21,6 @@ import {
     ListView,
     TouchableOpacity,
     Platform,
-    BackHandler,
     InteractionManager
 } from 'react-native';
 class moduleList extends Component {
@@ -59,7 +58,6 @@ class moduleList extends Component {
 
     //选中模块
     _selectModule(item) {
-        console.log(item.type);
         if (item.type === 'StockMove') {
             const {navigator} = this.props;
             if (navigator) {
@@ -95,7 +93,7 @@ class moduleList extends Component {
                     },
                 })
             }
-        }else if (item.type === 'StockCollect') {
+        } else if (item.type === 'StockCollect') {
             const {navigator} = this.props;
             if (navigator) {
                 navigator.push({
@@ -126,30 +124,10 @@ class moduleList extends Component {
         );
     }
 
-    //键盘物理返回事件
-    onBackAndroid = () => {
-        const {navigator} = this.props;
-        const routers = navigator.getCurrentRoutes();
-        if (routers.length > 1) {
-            navigator.pop();
-            return true;//接管默认行为
-        }
-        return false;//默认行为
-    };
-
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-            if (Platform.OS === 'android') {
-                BackHandler.addEventListener('hardwareBackPress', this.onBackAndroid);
-                this.props.placeActions.saveSelectPlaceList(this.props.selectStore.facilityId)
-            }
+            this.props.placeActions.saveSelectPlaceList(this.props.selectStore.facilityId)
         });
-    }
-
-    componentWillUnmount() {
-        if (Platform.OS === 'android') {
-            BackHandler.removeEventListener('hardwareBackPress', this.onBackAndroid);
-        }
     }
 }
 
