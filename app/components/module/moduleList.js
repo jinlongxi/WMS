@@ -11,6 +11,7 @@ import Icon from '../common/icon_enter';
 import Reservoir from '../../containers/reservoirContainer';
 import VerifyPick from '../../containers/verifyPickContainer';
 import StockCollect from '../../containers/collectContainer';
+import Inventory from '../../containers/inventoryContainer';
 import Util from '../../utils/util';
 import {
     StyleSheet,
@@ -104,7 +105,18 @@ class moduleList extends Component {
                     },
                 })
             }
-        }
+        } else if (item.type === 'StockQuery') {
+                     const {navigator} = this.props;
+                     if (navigator) {
+                         navigator.push({
+                             name: 'StockQuery',
+                             component: Inventory,
+                             params: {
+                                 selectStore: this.props.selectStore,
+                             },
+                         })
+                     }
+                 }
     }
 
     render() {
