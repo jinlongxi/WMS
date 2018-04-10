@@ -49,15 +49,6 @@ class rightMenu extends React.PureComponent {
             </Menu>
         );
     }
-
-    componentDidMount() {
-        //这个地方以后需要在找方法优化，现在比较卑劣，目的是为了隐藏掉系统键盘
-        InteractionManager.runAfterInteractions(()=> {
-            console.log('有新的参数')
-            this.showMenu();
-            this.hideMenu();
-        });
-    }
 }
 const styles = StyleSheet.create({
     right_icon: {

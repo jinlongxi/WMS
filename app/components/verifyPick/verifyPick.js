@@ -7,7 +7,6 @@ import Icon from '../common/icon_enter';
 import verifyPickLocationContainer from '../../containers/verifyPickLocationContainer';
 import Util from '../../utils/util';
 import styles from '../../styles/verifyPickStyles';
-import Menu, {MenuItem} from 'react-native-material-menu';
 import {
     AppRegistry,
     StyleSheet,
@@ -128,15 +127,6 @@ class VerifyPick extends React.Component {
                                 keyboardShouldPersistTaps='always'
                             /> : <Text style={{color:'white'}}>没有相关数据</Text>
                     }
-                    <Menu
-                        ref={this.setMenuRef}
-                        button={
-                            <TouchableOpacity onPress={this.showMenu}>
-                            </TouchableOpacity>
-                        }
-                    >
-                        <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
-                    </Menu>
                 </View>
             </View>
         );
@@ -176,26 +166,12 @@ class VerifyPick extends React.Component {
         }
     }
 
-    //这个地方太恶心了  是为了挤掉系统键盘后续优化
-    menu = null;
-    setMenuRef = ref => {
-        this.menu = ref;
-    };
-    hideMenu = () => {
-        this.menu.hide();
-    };
-    showMenu = () => {
-        this.menu.show();
-    };
-
     //文本框获得焦点
     _isFocused() {
         const that = this;
-        that.refs.aTextInputRef.focus();
         setTimeout(function () {
-            that.showMenu();
-            that.hideMenu();
-        }, 500);
+            that.refs.aTextInputRef.focus();
+        }, 100);
     }
 
     //进入对应分拣箱单页面
