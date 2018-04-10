@@ -5,6 +5,8 @@ import * as TYPES from '../constants/ActionTypes';
 import Request from '../utils/request';
 import ServiceURl from '../utils/service';
 import DeviceStorage from '../utils/deviceStorage';
+import {addCurrentPosition, addTargetPosition, loadingWait, saveCurrentSkuList} from "./reservoirAction";
+import Sound from "../utils/sound";
 
 //退出登录
 export function updateProductId(productId) {
@@ -20,6 +22,36 @@ export function updateLocationSeqId(locationSeqId) {
         dispatch({'type': TYPES.UPDATE_LOCATION_SEQ_ID,locationSeqId});
     };
 }
+
+//判断库位合法性
+export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, selectPlaceList) => {
+    return (dispatch) => {
+        //通过本地状态树验证库位合法性
+        let facilityLocation = selectPlaceList.some((item)=> {
+            return item.locationSeqId === locationSeqId
+        });
+        //合法通过locationType设置原库位或目标库位的值
+        if (facilityLocation) {
+            dispatch(updateLocationSeqId(locationSeqId))
+        } else {
+            Sound.playSoundBundleError();
+            Alert.alert(
+                '库位:' + locationSeqId,
+                '库位标识错误或该仓库上无此库位',
+                [
+                    {
+                        text: '确定',
+                        onPress: ()=> {
+                            dispatch(loadingWait(false));
+                        }
+                    },
+                ],
+                {cancelable: false}
+            );
+        }
+
+    };
+};
 
 export function findInventoryByLocationSeqId(productId,locationSeqId,facilityId) {
     console.log(productId,locationSeqId)

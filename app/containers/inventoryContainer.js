@@ -9,7 +9,8 @@ import Inventory from '../components/inventory/inventory';
 
 const mapStateToProps = (state) => {
     return {
-        inventoryState: state.inventoryStore
+        inventoryState: state.inventoryStore,
+        placeState: state.placeStore
     }
 };
 

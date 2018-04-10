@@ -2,8 +2,8 @@
 
 import * as TYPES from '../constants/ActionTypes';
 const initialState = {
-    currentPositionId: null,
-    targetPositionId: null,
+    currentPositionId: null,//原位置
+    targetPositionId: null,//目标位置
     selectSkuList: [],
     //selectSkuSize: 0,
     placeholderText: '扫描',
