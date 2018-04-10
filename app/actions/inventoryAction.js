@@ -54,7 +54,6 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, 
 };
 
 export function findInventoryByLocationSeqId(productId,locationSeqId,facilityId) {
-    console.log(productId,locationSeqId)
     //storage.clearMapForKey('storageLocation');    //清空本地保存的库位数据
     return (dispatch) => {
             dispatch({'type': TYPES.INVENTORY_LOADING,loading:true});

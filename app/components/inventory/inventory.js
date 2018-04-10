@@ -57,7 +57,6 @@ class Inventory extends React.Component {
 
     //扫描条码
     _scanning(text) {
-        console.log(text)
         const {inventoryActions}=this.props;
         switch (this.state.selectBtn) {
             case 1:
