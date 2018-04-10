@@ -8,7 +8,6 @@ import React, {Component} from 'react';
 import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import prompt from 'react-native-prompt-android';
-import Menu, {MenuItem} from 'react-native-material-menu';
 import Util from '../../utils/util';
 import styles from '../../styles/verifyPickStyles';
 import {
@@ -52,18 +51,6 @@ class Collect extends React.Component {
         this._isFocused = this._isFocused.bind(this);
         this._multiStockCollect = this._multiStockCollect.bind(this)
     }
-
-    //这个地方太恶心了  是为了挤掉系统键盘后续优化
-    menu = null;
-    setMenuRef = ref => {
-        this.menu = ref;
-    };
-    hideMenu = () => {
-        this.menu.hide();
-    };
-    showMenu = () => {
-        this.menu.show();
-    };
 
     //修改扫描SKU数量
     _modifyNumber(item) {
@@ -234,8 +221,6 @@ class Collect extends React.Component {
         const that = this;
         setTimeout(function () {
             that.refs.aTextInputRef.focus();
-            that.showMenu();
-            that.hideMenu();
         }, 100);
     }
 
@@ -320,15 +305,6 @@ class Collect extends React.Component {
 
                         </View>
                 }
-                <Menu
-                    ref={this.setMenuRef}
-                    button={
-                        <TouchableOpacity onPress={this.showMenu}>
-                        </TouchableOpacity>
-                    }
-                >
-                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
-                </Menu>
                 {
                     collectState.loading ? null :
                         <View style={styles.footer}>

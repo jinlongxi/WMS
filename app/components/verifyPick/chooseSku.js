@@ -6,7 +6,6 @@ import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import prompt from 'react-native-prompt-android';
 import Util from '../../utils/util';
-import Menu, {MenuItem} from 'react-native-material-menu';
 import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
@@ -49,18 +48,6 @@ class chooseSku extends React.Component {
         this._isFocused = this._isFocused.bind(this);
     }
 
-    //这个地方太恶心了  是为了挤掉系统键盘后续优化
-    menu = null;
-    setMenuRef = ref => {
-        this.menu = ref;
-    };
-    hideMenu = () => {
-        this.menu.hide();
-    };
-    showMenu = () => {
-        this.menu.show();
-    };
-
     _renderRow(item, sectionID, rowID, highlightRow) {
         const {SKU, noPicked, isPicked}=item;
         return (
@@ -101,11 +88,9 @@ class chooseSku extends React.Component {
     //文本框获得焦点
     _isFocused() {
         const that = this;
-        that.refs.aTextInputRef.focus();
         setTimeout(function () {
-            that.showMenu();
-            that.hideMenu();
-        }, 500);
+            that.refs.aTextInputRef.focus();
+        }, 100);
     }
 
     //分拣详情信息展示
@@ -218,15 +203,6 @@ class chooseSku extends React.Component {
                         /> : Util.loading
                     }
                 </View>
-                <Menu
-                    ref={this.setMenuRef}
-                    button={
-                        <TouchableOpacity onPress={this.showMenu}>
-                        </TouchableOpacity>
-                    }
-                >
-                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
-                </Menu>
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.moving} onPress={()=> {
                         this.props.navigator.pop()

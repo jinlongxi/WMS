@@ -6,7 +6,6 @@ import Header from '../common/reservoirHeader';
 import Icon from '../common/icon_enter';
 import ChooseSkuContainer from '../../containers/verifyPickSkuContainer';
 import Util from '../../utils/util';
-import Menu, {MenuItem} from 'react-native-material-menu';
 import styles from '../../styles/verifyPickStyles';
 import {
     AppRegistry,
@@ -216,15 +215,6 @@ class chooseLocation extends React.Component {
                     }
 
                 </View>
-                <Menu
-                    ref={this.setMenuRef}
-                    button={
-                        <TouchableOpacity onPress={this.showMenu}>
-                        </TouchableOpacity>
-                    }
-                >
-                    <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
-                </Menu>
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.moving}
                                       onPress={()=>this._completePick.bind(this)()}>
@@ -294,26 +284,12 @@ class chooseLocation extends React.Component {
         }
     }
 
-    //这个地方太恶心了  是为了挤掉系统键盘后续优化
-    menu = null;
-    setMenuRef = ref => {
-        this.menu = ref;
-    };
-    hideMenu = () => {
-        this.menu.hide();
-    };
-    showMenu = () => {
-        this.menu.show();
-    };
-
     //文本框获得焦点
     _isFocused() {
         const that = this;
-        that.refs.aTextInputRef.focus();
         setTimeout(function () {
-            that.showMenu();
-            that.hideMenu();
-        }, 500);
+            that.refs.aTextInputRef.focus();
+        }, 100);
     }
 
     //完成分拣
@@ -366,7 +342,6 @@ class chooseLocation extends React.Component {
                 verifyPickActions.getLocationsByPicklistBin(picklistBinId, selectStore.facilityId, pickType)
             }
         });
-
     }
 
     componentWillReceiveProps(nextProps) {
