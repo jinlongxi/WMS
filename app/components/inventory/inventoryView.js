@@ -37,6 +37,7 @@ class InventoryView extends React.Component {
         this._mapList = this._mapList.bind(this)
     }
 
+    //第一层这里遍历出所有库位信息，然后放入第二层
     _mapList(value){
         let mapvalue = Object.keys(value);
         let mapvalues = [];
@@ -46,16 +47,18 @@ class InventoryView extends React.Component {
                 mapvalues.push(v);
             }
         }
-        return(<View style={styles.list}>{this._aa(mapvalues,value)}</View>);
+        return(<View style={styles.list}>{this._locationList(mapvalues,value)}</View>);
     }
 
-    _aa(mapvalues,value){
-        return mapvalues.map((key, index)=> {return(<View style={styles.list}><Text style={styles.item}>{key} ({value[key+'_size']})</Text>{value[key]!=null?this._dd(value[key]):""}</View>)});
+    //第二层库位信息，创建出库位号和库位的所有商品数量，进入第三层
+    _locationList(mapvalues,value){
+        return mapvalues.map((key, index)=> {return(<View style={styles.list} key={index}><Text style={styles.item}>{key} ({value[key+'_size']})</Text>{value[key]!=null?this._productList(value[key]):""}</View>)});
     }
 
-    _dd(item){
+    //第三层商品信息，创建出商品id和数量
+    _productList(item){
         return item.map((v1, index)=> {return(
-            <View>
+            <View key={index}>
                 <Text style={styles.item}>{v1.productId}  {v1.quantity}</Text>
                 <View
                     style={{
@@ -66,6 +69,7 @@ class InventoryView extends React.Component {
             </View>
         )});
     }
+
 
     render() {
         const {inventoryState,inventoryActions, selectStore}=this.props;
@@ -83,7 +87,7 @@ class InventoryView extends React.Component {
                             <View style={styles.form}>
                                 {
                                     inventoryState.inventoryGroupData != null&&inventoryState.inventoryGroupData.length>0 ? inventoryState.inventoryGroupData.map((value,key)=> {
-                                        return (<View>
+                                        return (<View key={key}>
                                                     <Text style={styles.footer_btn_text}>{inventoryState.locationSeqSize} 个 库位 , {inventoryState.productSectionSize} 款 产品 , {inventoryState.productSize} 件</Text>
                                                     <ListView
                                                         style={styles.list}

@@ -111,17 +111,16 @@ class Inventory extends React.Component {
     goToView(){
         const {navigator,inventoryActions,inventoryState,selectStore} = this.props;
         inventoryActions.findInventoryByLocationSeqId(inventoryState.productId,inventoryState.locationSeqId,selectStore.facilityId);
+            if (navigator) {
+                navigator.push({
+                    name: 'InventoryView',
+                    component: InventoryView,
+                    params: {
+                        selectStore: selectStore,
 
-         if (navigator) {
-             navigator.push({
-                 name: 'InventoryView',
-                 component: InventoryView,
-                 params: {
-                     selectStore: selectStore,
-
-                 },
-             })
-         }
+                    },
+                })
+            }
     }
 
 }

@@ -5,8 +5,6 @@ import * as TYPES from '../constants/ActionTypes';
 import Request from '../utils/request';
 import ServiceURl from '../utils/service';
 import DeviceStorage from '../utils/deviceStorage';
-import storage from '../utils/storage';
-
 
 //退出登录
 export function updateProductId(productId) {
@@ -28,6 +26,7 @@ export function findInventoryByLocationSeqId(productId,locationSeqId,facilityId)
     //storage.clearMapForKey('storageLocation');    //清空本地保存的库位数据
     return (dispatch) => {
             dispatch({'type': TYPES.INVENTORY_LOADING,loading:true});
+
             const url = ServiceURl.wmsManager + 'findInventoryGroupByLocation';
                     DeviceStorage.get('userInfo').then((userInfo)=> {
 
@@ -38,6 +37,7 @@ export function findInventoryByLocationSeqId(productId,locationSeqId,facilityId)
                         formData.append("productId", productId);
                         formData.append("locationSeqId", locationSeqId);
                         console.log(formData)
+
                         Request.postRequest(url, formData, function (response) {
 
                             console.log(JSON.stringify(response));
@@ -55,6 +55,8 @@ export function findInventoryByLocationSeqId(productId,locationSeqId,facilityId)
                             console.log(JSON.stringify(err));
                             //dispatch({'type': TYPES.GET_PLACELIST_ERROR, error: err});
                         });
+
+
                     })
         };
 }
