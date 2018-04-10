@@ -37,63 +37,60 @@ class Inventory extends React.Component {
 
     }
 
-
     render() {
-        const {inventoryState,inventoryActions, selectStore}=this.props;
-        console.log(this.props)
+        const {inventoryState, inventoryActions, selectStore}=this.props;
         return (
-            <View style={styles.container}  >
+            <View style={styles.container}>
                 <Header initObj={{
                     backName: '选择模块',
                     barTitle: '库存查询',
                     barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
 
-                        <View style={styles.main}>
-                            <View style={[styles.form]}>
-                                <TextInput style={styles.input}
-                                           autoCapitalize='characters'
-                                           placeholder='请输入产品标识'
-                                           placeholderTextColor="#7a7a7a"
-                                           underlineColorAndroid='transparent'
-                                           returnKeyLabel="完成"
-                                           keyboardType="default"
-                                           autoFocus={true}
-                                           multiline={false}
-                                           value={inventoryState.productId}
-                                           onChangeText={(text)=> {
-                                                inventoryActions.updateProductId(text)
-                                           }}
-                                           onEndEditing={(text)=> {
+                <View style={styles.main}>
+                    <View style={[styles.form]}>
+                        <TextInput style={styles.input}
+                                   autoCapitalize='characters'
+                                   placeholder='请输入产品标识'
+                                   placeholderTextColor="#7a7a7a"
+                                   underlineColorAndroid='transparent'
+                                   returnKeyLabel="完成"
+                                   keyboardType="default"
+                                   autoFocus={true}
+                                   multiline={false}
+                                   value={inventoryState.productId}
+                                   onChangeText={(text)=> {
+                                       inventoryActions.updateProductId(text)
+                                   }}
+                                   onEndEditing={(text)=> {
 
-                                           }}
-                                           onSubmitEditing={()=> {
-                                                this.refs.locationSeqId.focus();
+                                   }}
+                                   onSubmitEditing={()=> {
+                                       this.refs.locationSeqId.focus();
 
-                                           }}
-                                           onBlur={this._isFocused}
-                                           ref="productId"
-                                />
-                                <TextInput style={styles.input}
-                                                                           autoCapitalize='characters'
-                                                                           placeholder='请输入库位'
-                                                                           placeholderTextColor="#7a7a7a"
-                                                                           underlineColorAndroid='transparent'
-                                                                           returnKeyLabel="完成"
-                                                                           keyboardType="default"
-                                                                           autoFocus={false}
-                                                                           multiline={false}
-                                                                           value={inventoryState.locationSeqId}
-                                                                           onChangeText={(text)=> {
-                                                                               inventoryActions.updateLocationSeqId(text)
-                                                                           }}
+                                   }}
+                                   onBlur={this._isFocused}
+                                   ref="productId"
+                        />
+                        <TextInput style={styles.input}
+                                   autoCapitalize='characters'
+                                   placeholder='请输入库位'
+                                   placeholderTextColor="#7a7a7a"
+                                   underlineColorAndroid='transparent'
+                                   returnKeyLabel="完成"
+                                   keyboardType="default"
+                                   autoFocus={false}
+                                   multiline={false}
+                                   value={inventoryState.locationSeqId}
+                                   onChangeText={(text)=> {
+                                       inventoryActions.updateLocationSeqId(text)
+                                   }}
 
-                                                                           ref="locationSeqId"
-                                                                />
-                            </View>
+                                   ref="locationSeqId"
+                        />
+                    </View>
 
-                        </View>
-
+                </View>
 
 
                 <View style={styles.footer}>
@@ -108,19 +105,18 @@ class Inventory extends React.Component {
         );
     }
 
-    goToView(){
-        const {navigator,inventoryActions,inventoryState,selectStore} = this.props;
-        inventoryActions.findInventoryByLocationSeqId(inventoryState.productId,inventoryState.locationSeqId,selectStore.facilityId);
-            if (navigator) {
-                navigator.push({
-                    name: 'InventoryView',
-                    component: InventoryView,
-                    params: {
-                        selectStore: selectStore,
-
-                    },
-                })
-            }
+    goToView() {
+        const {navigator, inventoryActions, inventoryState, selectStore} = this.props;
+        inventoryActions.findInventoryByLocationSeqId(inventoryState.productId, inventoryState.locationSeqId, selectStore.facilityId);
+        if (navigator) {
+            navigator.push({
+                name: 'InventoryView',
+                component: InventoryView,
+                params: {
+                    selectStore: selectStore,
+                },
+            })
+        }
     }
 
 }
