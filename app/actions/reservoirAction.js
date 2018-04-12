@@ -163,20 +163,26 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, 
 //缓存选中位置全部SKU信息到状态数上 包括productId eanId quantityOnHandTotal 推荐库位
 export function saveCurrentSkuList(facilityId, locationSeqId) {
     return (dispatch) => {
-        const url = ServiceURl.wmsManager + 'getInventoryItemAndRecommendLocationByLocation';
+        const url = ServiceURl.wmsManager + 'find';
         DeviceStorage.get('userInfo').then((userInfo)=> {
+            let InputFields = {
+                facilityId: facilityId,
+                locationSeqId: locationSeqId,
+                quantityOnHandTotal: 0,
+                quantityOnHandTotal_op: 'greaterThan'
+            };
             let formData = new FormData();
             formData.append("login.username", userInfo.username);
             formData.append("login.password", userInfo.password);
-            formData.append("locationSeqId", locationSeqId);
-            formData.append("facilityId", facilityId);
-            formData.append("returnLocationCount", 3);
-
+            formData.append("entityName", 'InventoryItemProductAndGoodIdentification');
+            formData.append("noConditionFind", 'Y');
+            formData.append("viewIndex", 0);
+            formData.append("viewSize", 99999);
+            formData.append("inputFields", JSON.stringify(InputFields));
             Request.postRequest(url, formData, function (response) {
-                //console.log('当前库位SKU列表' + JSON.stringify(response));
-                const {inventoryItemList}=response;
-                dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: inventoryItemList});
-                //console.log('当前原位置上全部SKU:' + JSON.stringify(response));
+                console.log('当前库位SKU列表' + JSON.stringify(response));
+                const {list:list}=response;
+                dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
             }, function (err) {
                 console.log(err);
                 alert('缓存原位置上的SKU列表失败')
@@ -186,27 +192,27 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
 }
 
 //查询当前SKU推荐库位
-// function getProductSuggestLocationSeqIds(facilityId, locationSeqId, productId, returnLocationCount = 3) {
-//     return new Promise(function (resolve, reject) {
-//         DeviceStorage.get('userInfo').then((userInfo)=> {
-//             const url = ServiceURl.wmsManager + 'mobile.getProductSuggestLocationSeqIds';
-//             let formData = new FormData();
-//             formData.append("login.username", userInfo.username);
-//             formData.append("login.password", userInfo.password);
-//             formData.append("facilityId", facilityId);
-//             formData.append("locationSeqId", locationSeqId);
-//             formData.append("productId", productId);
-//             formData.append("returnLocationCount", returnLocationCount);
-//             console.log(formData);
-//             Request.postRequest(url, formData, function (response) {
-//                 console.log('查询当前SKU推荐库位:' + JSON.stringify(response));
-//                 resolve(response)
-//             }, function (err) {
-//                 alert('查询当前SKU推荐库位')
-//             });
-//         })
-//     })
-// }
+function getProductSuggestLocationSeqIds(facilityId, locationSeqId, productId, returnLocationCount = 3) {
+    return new Promise(function (resolve, reject) {
+        DeviceStorage.get('userInfo').then((userInfo)=> {
+            const url = ServiceURl.wmsManager + 'mobile.getProductSuggestLocationSeqIds';
+            let formData = new FormData();
+            formData.append("login.username", userInfo.username);
+            formData.append("login.password", userInfo.password);
+            formData.append("facilityId", facilityId);
+            formData.append("locationSeqId", locationSeqId);
+            formData.append("productId", productId);
+            formData.append("returnLocationCount", returnLocationCount);
+            console.log(formData);
+            Request.postRequest(url, formData, function (response) {
+                console.log('查询当前SKU推荐库位:' + JSON.stringify(response));
+                resolve(response)
+            }, function (err) {
+                alert('查询当前SKU推荐库位')
+            });
+        })
+    })
+}
 
 //判断产品SKU合法性
 export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuList) => {
@@ -324,7 +330,9 @@ const verifyProductLocal = (facilityId, locationSeqId, sku, stock, currentSkuLis
                 if (stock === 0) {
                     dispatch(deleteSelectSku(selectSku.productId));
                 } else {
-                    dispatch(addSelectSku(selectSku.productId, stock, selectSku.commendLocationSeqId, selectSku.eanId));
+                    getProductSuggestLocationSeqIds(facilityId, locationSeqId, sku).then((data)=> {
+                        dispatch(addSelectSku(selectSku.productId, stock, data.commendLocationSeqId, selectSku.eanId));
+                    });
                 }
             }
         } else {
