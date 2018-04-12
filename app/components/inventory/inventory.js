@@ -60,10 +60,12 @@ class Inventory extends React.Component {
         const {inventoryActions}=this.props;
         switch (this.state.selectBtn) {
             case 1:
+                //直接把数据存入数据树中
                 inventoryActions.updateProductId(text);
                 return
             case 2:
                 return (
+                    //检查库位对不对
                     inventoryActions.verifyFacilityLocation(this.props.selectStore.facilityId, text, 'current', this.props.placeState.selectPlaceList)
                 );
         }
@@ -74,12 +76,27 @@ class Inventory extends React.Component {
     _submit() {
         const text = this.state.text;
         if (text != null) {
-            //const {inventoryActions}=this.props;
-            //reservoirActions.loadingWait(true);
             this._scanning(text);
             this.setState({
                 text: null
             });
+        }
+    }
+
+    //跳转到显示页面
+    _goToView() {
+        const {navigator, inventoryActions, inventoryState, selectStore} = this.props;
+        //查找并存储数据
+        inventoryActions.findInventoryByLocationSeqId(inventoryState.productId, inventoryState.locationSeqId, selectStore.facilityId);
+        //跳转操作
+        if (navigator) {
+            navigator.push({
+                name: 'InventoryView',
+                component: InventoryView,
+                params: {
+                    selectStore: selectStore,
+                },
+            })
         }
     }
 
@@ -154,10 +171,9 @@ class Inventory extends React.Component {
                         </View>
                     </View>
                 </View>
-
                 <View style={styles.footer}>
                     <TouchableOpacity style={styles.moving} onPress={()=> {
-                        this.goToView.bind(this)();
+                        this._goToView.bind(this)();
                     }}>
                         <Text style={styles.footer_btn_text}>查询</Text>
                     </TouchableOpacity>
@@ -167,20 +183,7 @@ class Inventory extends React.Component {
         );
     }
 
-    goToView() {
-        const {navigator, inventoryActions, inventoryState, selectStore} = this.props;
-        inventoryActions.findInventoryByLocationSeqId(inventoryState.productId, inventoryState.locationSeqId, selectStore.facilityId);
-        if (navigator) {
-            navigator.push({
-                name: 'InventoryView',
-                component: InventoryView,
-                params: {
-                    selectStore: selectStore,
-                },
-            })
-        }
-    }
-
+    //第二次进入的情况下，把框位置重置
     componentWillReceiveProps(nextProps) {
         this.setState({
             selectBtn: nextProps.inventoryState.selectBtn,

@@ -4,14 +4,14 @@
 import * as TYPES from '../constants/ActionTypes';
 
 const initialState = {
-    productId: null,
-    locationSeqId: null,
-    loading:false,
-    status:null,
-    inventoryGroupData:null,
-    productSize:0,
-    locationSeqSize:0,
-    productSectionSize:0,
+    productId: null,//商品id
+    locationSeqId: null,//库位
+    loading:false,//是否有loading画面
+    status:null,//状态（'success','loading'）
+    inventoryGroupData:null,//库位中商品数据
+    productSize:0,//商品数量
+    locationSeqSize:0,//库位数量
+    productSectionSize:0,//商品款式数量
     selectBtn: 1,//第几个框
 };
 
@@ -44,6 +44,13 @@ export default function inventory(state = initialState, action) {
                 productSize:action.productSize,
                 locationSeqSize:action.locationSeqSize,
                 productSectionSize:action.productSectionSize,
+                selectBtn: 1
+            };
+        case TYPES.CLEAN_PRODUCT_LOCATION_DATA:
+            return {
+                ...state,
+                productId:'',
+                locationSeqId:'',
                 selectBtn: 1
             };
         default:

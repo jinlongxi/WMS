@@ -38,7 +38,8 @@ export const SET_PICKLIST_LOCATION_ARRAY = 'SET_PICKLIST_LOCATION_ARRAY';       
 export const SET_PICKLIST_LOCATION_SKU_ARRAY = 'SET_PICKLIST_LOCATION_SKU_ARRAY';               //设置分拣箱SKU数组
 
 /*库存查询模块*********************************************************/
-export const UPDATE_PRODUCT_ID = 'UPDATE_PRODUCT_ID';                                   //初始化分拣数据（使用本地数据）
-export const UPDATE_LOCATION_SEQ_ID = 'UPDATE_LOCATION_SEQ_ID';                                   //初始化分拣数据（使用本地数据）
-export const INVENTORY_LOADING = 'INVENTORY_LOADING';                                   //初始化分拣数据（使用本地数据）
-export const SAVE_INVENTORY_DATA_SUCCESS = 'SAVE_INVENTORY_DATA_SUCCESS';                                   //初始化分拣数据（使用本地数据）
+export const UPDATE_PRODUCT_ID = 'UPDATE_PRODUCT_ID';                                           //给商品赋值
+export const UPDATE_LOCATION_SEQ_ID = 'UPDATE_LOCATION_SEQ_ID';                                 //给库位赋值
+export const INVENTORY_LOADING = 'INVENTORY_LOADING';                                           //显示loading
+export const SAVE_INVENTORY_DATA_SUCCESS = 'SAVE_INVENTORY_DATA_SUCCESS';                       //请求并保存库存成功
+export const CLEAN_PRODUCT_LOCATION_DATA = 'CLEAN_PRODUCT_LOCATION_DATA';                       //清空查询数据

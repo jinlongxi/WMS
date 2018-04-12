@@ -40,30 +40,30 @@ class InventoryView extends React.Component {
     //第一层这里遍历出所有库位信息，然后放入第二层
     _mapList(value) {
         let mapvalue = Object.keys(value);
-        let mapvalues = [];
+        let locationSeqList = [];
         for (let id in mapvalue) {
             let v = mapvalue[id];
             if (v.indexOf("_size") < 0) {
-                mapvalues.push(v);
+                locationSeqList.push(v);
             }
         }
-        return (<View style={styles.list}>{this._locationList(mapvalues, value)}</View>);
+        return (<View style={styles.list}>{this._locationList(locationSeqList, value)}</View>);
     }
 
     //第二层库位信息，创建出库位号和库位的所有商品数量，进入第三层
-    _locationList(mapvalues, value) {
-        return mapvalues.map((key, index)=> {
-            return (<View style={styles.list} key={index}><Text style={styles.item}>{key}
-                ({value[key + '_size']})</Text>{value[key] != null ? this._productList(value[key]) : ""}</View>)
+    _locationList(locationSeqList, value) {
+        return locationSeqList.map((locationSeq, index)=> {
+            return (<View style={styles.list} key={index}><Text style={styles.item}>{locationSeq}
+                ({value[locationSeq + '_size']})</Text>{value[locationSeq] != null ? this._productList(value[locationSeq]) : ""}</View>)
         });
     }
 
     //第三层商品信息，创建出商品id和数量
-    _productList(item) {
-        return item.map((v1, index)=> {
+    _productList(inventoryItemList) {
+        return inventoryItemList.map((inventoryItem, index)=> {
             return (
                 <View key={index}>
-                    <Text style={styles.item}>{v1.productId} {v1.quantity}</Text>
+                    <Text style={styles.item}>{inventoryItem.productId} {inventoryItem.quantity}</Text>
                     <View
                         style={{
                             height: 0.8,
@@ -76,8 +76,8 @@ class InventoryView extends React.Component {
     }
 
     render() {
-        const {inventoryState, inventoryActions, selectStore}=this.props;
-        console.log(inventoryState.loading)
+        const {inventoryState, selectStore}=this.props;
+        //console.log(inventoryState.loading)
         return (
             <View style={styles.container}>
                 <Header initObj={{
@@ -101,9 +101,6 @@ class InventoryView extends React.Component {
                                                     renderRow={(rowData) => this._mapList(rowData)}
                                                 />
                                             </View>
-                                            //<View style={styles.form}>{
-                                            //    this._mapList(value)
-                                            //}</View>
                                         )
                                     }) : <Text>{JSON.stringify(inventoryState.inventoryGroupData)}</Text>
 
@@ -119,12 +116,15 @@ class InventoryView extends React.Component {
     //进入之前
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-            console.log(this.props)
+            //当进入显示页面，把查询页面的条件清空
+            this.props.inventoryActions.clearData();
+            //console.log(this.props)
         });
     }
 
     //第二个props进来的时候调用
     componentWillReceiveProps(nextProps) {
+        //初始化<ListView>列表的数据
         let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const data = nextProps.inventoryState.inventoryGroupData;
         this.setState({
