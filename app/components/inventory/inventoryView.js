@@ -33,7 +33,8 @@ class InventoryView extends React.Component {
         this.state = {
             loading: this.props.inventoryState.loading,
             dataSource: ds.cloneWithRows([]),
-        }
+            inventoryGroupData:null
+        };
         this._mapList = this._mapList.bind(this)
     }
 
@@ -77,7 +78,7 @@ class InventoryView extends React.Component {
 
     render() {
         const {inventoryState, selectStore}=this.props;
-        //console.log(inventoryState.loading)
+        console.log(this.state.dataSource)
         return (
             <View style={styles.container}>
                 <Header initObj={{
@@ -85,12 +86,11 @@ class InventoryView extends React.Component {
                     barTitle: '库存查询',
                     barTitle_small: selectStore.facilityName
                 }} {...this.props}/>
-                <View>
                     {
                         this.state.loading ? Util.loading :
-                            <View style={styles.form}>
+                            <ScrollView style={styles.form}>
                                 {
-                                    inventoryState.inventoryGroupData != null && inventoryState.inventoryGroupData.length > 0 ? inventoryState.inventoryGroupData.map((value, key)=> {
+                                    this.state.inventoryGroupData != null && this.state.inventoryGroupData.length > 0 ? inventoryState.inventoryGroupData.map((value, key)=> {
                                         return (<View key={key}>
                                                 <Text style={styles.footer_btn_text}>{inventoryState.locationSeqSize} 个
                                                     库位 , {inventoryState.productSectionSize} 款 产品
@@ -102,13 +102,12 @@ class InventoryView extends React.Component {
                                                 />
                                             </View>
                                         )
-                                    }) : <Text>{JSON.stringify(inventoryState.inventoryGroupData)}</Text>
+                                    }) : null
 
                                 }
-                            </View>
+                            </ScrollView>
 
                     }
-                </View>
             </View>
         );
     }
@@ -116,9 +115,9 @@ class InventoryView extends React.Component {
     //进入之前
     componentWillMount() {
         InteractionManager.runAfterInteractions(()=> {
-            //当进入显示页面，把查询页面的条件清空
-            this.props.inventoryActions.clearData();
-            //console.log(this.props)
+            const {inventoryActions, inventoryState, selectStore} = this.props;
+            //查找并存储数据
+            inventoryActions.findInventoryByLocationSeqId(inventoryState.productId, inventoryState.locationSeqId, selectStore.facilityId);
         });
     }
 
@@ -127,10 +126,17 @@ class InventoryView extends React.Component {
         //初始化<ListView>列表的数据
         let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         const data = nextProps.inventoryState.inventoryGroupData;
+        console.log(data);
         this.setState({
             loading: nextProps.inventoryState.loading,
-            dataSource: ds.cloneWithRows(data)
+            dataSource: ds.cloneWithRows(data),
+            inventoryGroupData:data
         });
+    }
+
+    componentWillUnmount() {
+        //当进入显示页面，把查询页面的条件清空
+        this.props.inventoryActions.clearData();
     }
 
 }

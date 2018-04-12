@@ -181,8 +181,13 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
             formData.append("inputFields", JSON.stringify(InputFields));
             Request.postRequest(url, formData, function (response) {
                 console.log('当前库位SKU列表' + JSON.stringify(response));
-                const {list:list}=response;
-                dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
+                const {_ERROR_MESSAGE_}=response;
+                if(_ERROR_MESSAGE_){
+                    alert('接口报错')
+                }else{
+                    const {list:list}=response;
+                    dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
+                }
             }, function (err) {
                 console.log(err);
                 alert('缓存原位置上的SKU列表失败')

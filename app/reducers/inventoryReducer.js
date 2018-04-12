@@ -8,7 +8,7 @@ const initialState = {
     locationSeqId: null,//库位
     loading:false,//是否有loading画面
     status:null,//状态（'success','loading'）
-    inventoryGroupData:null,//库位中商品数据
+    inventoryGroupData:[],//库位中商品数据
     productSize:0,//商品数量
     locationSeqSize:0,//库位数量
     productSectionSize:0,//商品款式数量

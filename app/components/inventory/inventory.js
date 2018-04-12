@@ -85,9 +85,7 @@ class Inventory extends React.Component {
 
     //跳转到显示页面
     _goToView() {
-        const {navigator, inventoryActions, inventoryState, selectStore} = this.props;
-        //查找并存储数据
-        inventoryActions.findInventoryByLocationSeqId(inventoryState.productId, inventoryState.locationSeqId, selectStore.facilityId);
+        const {navigator, selectStore,inventoryStore} = this.props;
         //跳转操作
         if (navigator) {
             navigator.push({
