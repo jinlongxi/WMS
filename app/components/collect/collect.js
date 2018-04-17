@@ -106,7 +106,8 @@ class Collect extends React.Component {
                         skuStock = parseInt(item.stock) + 1;
                     }
                 });
-                return collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, text, skuStock, collectState.currentSkuList);
+                //return collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, text, skuStock, collectState.currentSkuList);
+                return collectActions.findLocationProductMoveRecord(selectStore.facilityId, collectState.currentPositionId, text, skuStock, collectState.currentSkuList);
         }
         this._isFocused()
     }

@@ -93,6 +93,42 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, 
     };
 };
 
+//验证SKU是否在库位并且获得服务器中原有数据
+export const findLocationProductMoveRecord = (facilityId, locationSeqId, sku, currentSkuList)=> {
+    return (dispatch)=> {
+
+        dispatch(loadingWait(true));
+        const url = ServiceURl.wmsManager + 'findLocationProductMoveRecords';
+        DeviceStorage.get('userInfo').then((userInfo)=> {
+            let formData = new FormData();
+            formData.append("login.username", userInfo.username);
+            formData.append("login.password", userInfo.password);
+            formData.append("facilityId", facilityId);
+            formData.append("locationSeqId", locationSeqId);
+            formData.append("productId", sku);
+            Request.postRequest(url, formData, function (response) {
+                console.log('查询采集数据:' + JSON.stringify(response));
+                const {_ERROR_MESSAGE_}=response;
+                const {quantity}=response;
+                const {productId}=response;
+                const {eanId}=response;
+                if (!_ERROR_MESSAGE_) {
+                    Sound.playSoundBundleSuccess();
+                    dispatch(addSelectSku(productId, quantity, locationSeqId, eanId));
+                    dispatch(loadingWait(false));
+                } else {
+                    alert(_ERROR_MESSAGE_);
+                    dispatch(loadingWait(false));
+                }
+            }, function (err) {
+                console.log(JSON.stringify(err));
+                alert('查询失败')
+            });
+        })
+
+    }
+};
+
 //验证SKU是否在本地数据中
 export const verifyProduct = (facilityId, locationSeqId, sku, stock, currentSkuList)=> {
     return (dispatch)=> {
@@ -141,9 +177,12 @@ export const multiStockCollect = (facilityId, locationSeqId, productQuantity, se
             formData.append("login.password", userInfo.password);
             formData.append("facilityId", facilityId);
             formData.append("locationSeqId", locationSeqId);
-            formData.append("equipment", DeviceInfo.getUniqueID());
+            //formData.append("equipment", DeviceInfo.getUniqueID());
+            //突然获取机器的标码无法使用
+            formData.append("equipment", "");
             formData.append("partyId", userInfo.partyId);
             formData.append("productQuantity", JSON.stringify(productQuantity));
+            console.log(formData);
             Request.postRequest(url, formData, function (response) {
                 console.log('保存采集数据:' + JSON.stringify(response));
                 const {_ERROR_MESSAGE_}=response;
