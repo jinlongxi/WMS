@@ -182,11 +182,32 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
             Request.postRequest(url, formData, function (response) {
                 console.log('当前库位SKU列表' + JSON.stringify(response));
                 const {_ERROR_MESSAGE_}=response;
-                if(_ERROR_MESSAGE_){
+                if (_ERROR_MESSAGE_) {
                     alert('接口报错')
-                }else{
+                } else {
                     const {list:list}=response;
-                    dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: list});
+                    //去重操作
+                    let currentSkuList = [];
+                    let sku = null;
+                    list.map((item)=> {
+                        if (item.productId === sku) {
+                            for (let a of currentSkuList) {
+                                if (a.productId === sku) {
+                                    a.quantityOnHandTotal = parseInt(a.quantityOnHandTotal) + parseInt(item.quantityOnHandTotal)
+                                }
+                            }
+                        } else {
+                            currentSkuList.push({
+                                productId: item.productId,
+                                eanId: item.eanId,
+                                quantityOnHandTotal: item.quantityOnHandTotal
+                            });
+                            sku = item.productId;
+                        }
+                    });
+                    //console.log(currentSkuList);
+
+                    dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: currentSkuList});
                 }
             }, function (err) {
                 console.log(err);
@@ -297,6 +318,7 @@ const verifyProductLocal = (facilityId, locationSeqId, sku, stock, currentSkuLis
             }
             return item.productId === sku || item.eanId === sku
         });
+        console.log(selectSku);
         if (effective) {
             if (selectSku.quantityOnHandTotal < stock) {
                 Sound.playSoundBundleError();
@@ -364,7 +386,8 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
     return (dispatch) => {
         dispatch(loadingWait(true));
         //后台定义了每次最大移库数量为100
-        if (selectSkuSize > 99) {
+        console.log(productQuantity, selectSkuSize);
+        if (productQuantity.length > 99) {
             alert('单次最大移库数量不得超过100条SKU')
         } else {
             const url = ServiceURl.wmsManager + 'multiStockMove';
@@ -380,7 +403,19 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
                     //console.log('移库操作:'+JSON.stringify(response));
                     const {_ERROR_MESSAGE_:_ERROR_MESSAGE_}=response;
                     if (_ERROR_MESSAGE_) {
-                        alert(_ERROR_MESSAGE_)
+                        Alert.alert(
+                            '移库错误',
+                            _ERROR_MESSAGE_,
+                            [
+                                {
+                                    text: '确定',
+                                    onPress: () => {
+                                        dispatch(loadingWait(false));
+                                    }
+                                },
+                            ],
+                            {cancelable: false}
+                        );
                     } else {
                         Alert.alert(
                             '移库成功',
@@ -401,7 +436,7 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
                     }
                 }, function (err) {
                     console.log(JSON.stringify(err));
-                    alert('移库失败！')
+                    alert('移库请求后台失败！')
                 });
             })
         }

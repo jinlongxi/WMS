@@ -57,7 +57,7 @@ class Login extends React.Component {
                             <Switch disabled={false} value={this.state.radioSelect} onValueChange={()=> {
                                 this.setState({radioSelect: !this.state.radioSelect})
                             }}/>
-                            <Text style={styles.radio_text}>记住密码</Text>
+                            <Text style={styles.radio_text}>记住密码  当前版本1.1 发布日期4.13</Text>
                         </View>
                         <TouchableOpacity style={styles.btn} onPress={()=> {
                             this.appLogin()

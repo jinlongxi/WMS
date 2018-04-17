@@ -55,10 +55,9 @@ class Reservoir extends React.Component {
     //修改扫描SKU数量
     _modifyNumber(item) {
         const {reservoirActions}=this.props;
-        const commendLocationArray = item.commendLocationSeqId.split(',');
         prompt(
             item.sku,
-            commendLocationArray[0] + ' ' + commendLocationArray[1] + '\n' + commendLocationArray[2],
+            '',
             [
                 {
                     text: '确定',
@@ -82,10 +81,10 @@ class Reservoir extends React.Component {
                 },
             ],
             {
+                type: 'numeric',
                 cancelable: false,
                 defaultValue: typeof item.stock === 'number' ? JSON.stringify(item.stock) : item.stock,
                 placeholder: '输入数量',
-                type: 'numeric'
             }
         );
     }
@@ -275,10 +274,17 @@ class Reservoir extends React.Component {
                 <View style={{flex: 1}}>
                     <Text style={styles.txt}>{sku}</Text>
                     {
-                        commendLocationSeqId ? <Text style={[styles.txt, {
-                            fontSize: 14,
-                            color: '#777'
-                        }]}>库位推荐:{commendLocationSeqArray[0]}</Text> : null
+                        commendLocationSeqId ?
+                            <View>
+                                <Text style={[styles.txt, {
+                                    fontSize: 14,
+                                    color: '#777'
+                                }]}>{commendLocationSeqArray[0]}</Text>
+                                <Text style={[styles.txt, {
+                                    fontSize: 14,
+                                    color: '#777'
+                                }]}>{commendLocationSeqArray[1]}</Text>
+                            </View>: null
                     }
                 </View>
                 <Text style={{fontWeight: 'bold'}}>{stock}</Text>
