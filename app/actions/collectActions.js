@@ -177,9 +177,9 @@ export const multiStockCollect = (facilityId, locationSeqId, productQuantity, se
             formData.append("login.password", userInfo.password);
             formData.append("facilityId", facilityId);
             formData.append("locationSeqId", locationSeqId);
-            //formData.append("equipment", DeviceInfo.getUniqueID());
+            formData.append("equipment", DeviceInfo.getUniqueID());
             //突然获取机器的标码无法使用
-            formData.append("equipment", "");
+            //formData.append("equipment", "");
             formData.append("partyId", userInfo.partyId);
             formData.append("productQuantity", JSON.stringify(productQuantity));
             console.log(formData);
