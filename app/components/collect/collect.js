@@ -62,14 +62,14 @@ class Collect extends React.Component {
                 {
                     text: '确定',
                     onPress: (number) => {
-                        collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, item.sku, number, this.state.currentSkuList);
+                        collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, item.sku, number, collectState.selectSkuList);
                         this._isFocused()
                     }
                 },
                 {
                     text: '删除',
                     onPress: () => {
-                        collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, item.sku, 0, this.state.currentSkuList);
+                        collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, item.sku, 0, collectState.selectSkuList);
                         this._isFocused()
                     }
                 },
@@ -100,14 +100,17 @@ class Collect extends React.Component {
             case 3:
                 let skuList = this.props.collectState.selectSkuList;
                 let skuStock = 1;
-
                 skuList.map((item)=> {
                     if (item.sku === text || item.eanId === text) {
                         skuStock = parseInt(item.stock) + 1;
                     }
                 });
-                //return collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, text, skuStock, collectState.currentSkuList);
-                return collectActions.findLocationProductMoveRecord(selectStore.facilityId, collectState.currentPositionId, text, skuStock, collectState.currentSkuList);
+                return collectActions.verifyProduct(selectStore.facilityId, collectState.currentPositionId, text, skuStock, skuList);
+                //return collectActions.findLocationProductMoveRecord(selectStore.facilityId, collectState.currentPositionId, text, skuStock, collectState.currentSkuList);
+            case 4:
+                return (
+                    collectActions.findLocationProductMoveRecord(selectStore.facilityId, text)
+                );
         }
         this._isFocused()
     }
@@ -187,21 +190,21 @@ class Collect extends React.Component {
     //切换功能按钮
     _switchBtn(currentBtn) {
         const {collectState}=this.props;
-        if (collectState.currentPositionId == null) {
-            Alert.alert(
-                '原位置不能为空',
-                '请先扫描或输入原位置标识',
-                [
-                    {text: '确定', onPress: () => console.log('用户点击了确定按钮')},
-                ],
-                {cancelable: false}
-            );
-        } else {
+        // if (collectState.currentPositionId == null) {
+        //     Alert.alert(
+        //         '原位置不能为空',
+        //         '请先扫描或输入原位置标识',
+        //         [
+        //             {text: '确定', onPress: () => console.log('用户点击了确定按钮')},
+        //         ],
+        //         {cancelable: false}
+        //     );
+        // } else {
             this._isFocused();
             this.setState({
                 selectBtn: currentBtn,
             })
-        }
+        // }
     }
 
     //清空数据
@@ -284,6 +287,17 @@ class Collect extends React.Component {
                                             <Text style={styles.position_btn_text}>扫描产品</Text>
                                             <Text
                                                 style={styles.position_btn_text}>共{this.state.selectSkuSize}件</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.position}>
+                                        <TouchableOpacity
+                                            style={[styles.position_btn, {backgroundColor: this.state.selectBtn === 4 ? '#F37B22' : '#cccccc'}]}
+                                            onPress={()=> {
+                                                this._switchBtn(4)
+                                            }}>
+                                            <Text style={styles.position_btn_text}>扫描库位中产品</Text>
+                                            <Text
+                                                style={styles.position_btn_text}></Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
