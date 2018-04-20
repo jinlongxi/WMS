@@ -88,7 +88,7 @@ class Login extends React.Component {
         if (this.props.loginState.isLogin) {
             const {navigator} = this.props;
             if (navigator) {
-                navigator.push({
+                navigator.resetTo({
                     name: 'Place',
                     component: Place,
                     params: {},
@@ -117,7 +117,7 @@ class Login extends React.Component {
         if (nextProps.loginState.isLogin) {
             const {navigator} = this.props;
             if (navigator) {
-                navigator.push({
+                navigator.resetTo({
                     name: 'Place',
                     component: Place,
                 })

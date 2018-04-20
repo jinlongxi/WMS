@@ -125,7 +125,7 @@ class Place extends React.Component {
     _handleAppStateChange = (nextAppState) => {
         console.log('app运行状态' + nextAppState);
         if (nextAppState === 'background') {
-            AppState.exitApp()
+            // AppState.exitApp()
         }
     };
 
