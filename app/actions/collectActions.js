@@ -185,7 +185,9 @@ export const findLocationProductMoveRecord = (facilityId, sku)=> {
                         //dispatch(addSelectSku(item.productId, item.quantity, item.locationSeqId, item.eanId));
                         out = out +item.locationSeqId+"("+item.quantity+")"+"\n";
                     });
-
+                    if(out === ''){
+                        out = "不包含于所有库位中！";
+                    }
                     dispatch(loadingWait(false));
                     Alert.alert(
                         '库位:',
