@@ -183,7 +183,7 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
                 console.log('当前库位SKU列表' + JSON.stringify(response));
                 const {_ERROR_MESSAGE_}=response;
                 if (_ERROR_MESSAGE_) {
-                    alert('接口报错')
+                    alert('接口报错：'+_ERROR_MESSAGE_)
                 } else {
                     const {list:list}=response;
                     //去重操作
