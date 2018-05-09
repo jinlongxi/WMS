@@ -163,24 +163,30 @@ export const verifyFacilityLocation = (facilityId, locationSeqId, locationType, 
 //缓存选中位置全部SKU信息到状态数上 包括productId eanId quantityOnHandTotal 推荐库位
 export function saveCurrentSkuList(facilityId, locationSeqId) {
     return (dispatch) => {
-        const url = ServiceURl.wmsManager + 'find';
+        timeDate = new Date().getTime();
+        // const url = ServiceURl.wmsManager + 'find';
+        const url = ServiceURl.wmsManager + 'mobile.getAllInventoryItemEanId';
         DeviceStorage.get('userInfo').then((userInfo)=> {
-            let InputFields = {
-                facilityId: facilityId,
-                locationSeqId: locationSeqId,
-                quantityOnHandTotal: 0,
-                quantityOnHandTotal_op: 'greaterThan'
-            };
+            // let InputFields = {
+            //     facilityId: facilityId,
+            //     locationSeqId: locationSeqId,
+            //     quantityOnHandTotal: 0,
+            //     quantityOnHandTotal_op: 'greaterThan'
+            // };
             let formData = new FormData();
             formData.append("login.username", userInfo.username);
             formData.append("login.password", userInfo.password);
-            formData.append("entityName", 'InventoryItemProductAndGoodIdentification');
-            formData.append("noConditionFind", 'Y');
-            formData.append("viewIndex", 0);
-            formData.append("viewSize", 99999);
-            formData.append("inputFields", JSON.stringify(InputFields));
+            formData.append("facilityId", facilityId);
+            formData.append("locationSeqId", locationSeqId);
+            // formData.append("login.username", userInfo.username);
+            // formData.append("login.password", userInfo.password);
+            // formData.append("entityName", 'InventoryItemProductAndGoodIdentification');
+            // formData.append("noConditionFind", 'Y');
+            // formData.append("viewIndex", 0);
+            // formData.append("viewSize", 99999);
+            // formData.append("inputFields", JSON.stringify(InputFields));
             Request.postRequest(url, formData, function (response) {
-                console.log('当前库位SKU列表' + JSON.stringify(response));
+                console.log('使用时间：'+(new Date().getTime()-timeDate)+' 当前库位SKU列表' + JSON.stringify(response));
                 const {_ERROR_MESSAGE_}=response;
                 if (_ERROR_MESSAGE_) {
                     alert('接口报错：'+_ERROR_MESSAGE_)
@@ -206,7 +212,7 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
                         }
                     });
                     //console.log(currentSkuList);
-
+                    console.log("--------end--------");
                     dispatch({'type': TYPES.SAVE_CURRENT_SKULIST, currentSkuList: currentSkuList});
                 }
             }, function (err) {
