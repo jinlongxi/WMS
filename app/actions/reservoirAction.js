@@ -7,6 +7,8 @@ import ServiceURl from '../utils/service';
 import DeviceStorage from '../utils/deviceStorage';
 import Sound from '../utils/sound';
 import * as TYPES from '../constants/ActionTypes';
+import moment from 'moment';
+import DeviceInfo from 'react-native-device-info'
 
 //添加当前库位ID
 export const addCurrentPosition = (positionId) => {
@@ -196,20 +198,35 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
                     let currentSkuList = [];
                     let sku = null;
                     list.map((item)=> {
-                        if (item.productId === sku) {
-                            for (let a of currentSkuList) {
-                                if (a.productId === sku) {
-                                    a.quantityOnHandTotal = parseInt(a.quantityOnHandTotal) + parseInt(item.quantityOnHandTotal)
-                                }
+                        let flag = true;
+                        for(let a of currentSkuList){
+                            if (a.productId === item.productId) {
+                                a.quantityOnHandTotal = parseInt(a.quantityOnHandTotal) + parseInt(item.quantityOnHandTotal)
+                                flag = false;
                             }
-                        } else {
+                        }
+                        if(flag){
                             currentSkuList.push({
                                 productId: item.productId,
                                 eanId: item.eanId,
                                 quantityOnHandTotal: item.quantityOnHandTotal
                             });
-                            sku = item.productId;
                         }
+
+                        // if (item.productId === sku) {
+                        //     for (let a of currentSkuList) {
+                        //         if (a.productId === sku) {
+                        //             a.quantityOnHandTotal = parseInt(a.quantityOnHandTotal) + parseInt(item.quantityOnHandTotal)
+                        //         }
+                        //     }
+                        // } else {
+                        //     currentSkuList.push({
+                        //         productId: item.productId,
+                        //         eanId: item.eanId,
+                        //         quantityOnHandTotal: item.quantityOnHandTotal
+                        //     });
+                        //     sku = item.productId;
+                        // }
                     });
                     //console.log(currentSkuList);
                     console.log("--------end--------");
@@ -224,7 +241,7 @@ export function saveCurrentSkuList(facilityId, locationSeqId) {
 }
 
 //查询当前SKU推荐库位
-function getProductSuggestLocationSeqIds(facilityId, locationSeqId, productId, returnLocationCount = 3) {
+function getProductSuggestLocationSeqIds(facilityId, locationSeqId, productId, returnLocationCount = 99) {
     return new Promise(function (resolve, reject) {
         DeviceStorage.get('userInfo').then((userInfo)=> {
             const url = ServiceURl.wmsManager + 'mobile.getProductSuggestLocationSeqIds';
@@ -387,6 +404,8 @@ const verifyProductLocal = (facilityId, locationSeqId, sku, stock, currentSkuLis
     }
 };
 
+
+
 //移库
 export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, productQuantity, selectSkuSize) => {
     return (dispatch) => {
@@ -423,6 +442,28 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
                             {cancelable: false}
                         );
                     } else {
+                        DeviceStorage.get("multiStockMove_"+
+                            moment().format('YYYY-MM-DD')).then((log)=> {
+                            console.log("---1----")
+                            console.log(log)
+                            console.log("---1----")
+                            if(log==null){
+                                log = new Map();
+                                log.set(moment().format('YYYY-MM-DD HH:mm:SS'),formData);
+                                console.log("---2---")
+                                console.log(log)
+                                console.log("---2---")
+                                DeviceStorage.save("multiStockMove_"+
+                                    moment().format('YYYY-MM-DD'),DeviceStorage.strMapToObj(log));
+                            }else{
+                                let map = DeviceStorage.objToStrMap(log);
+                                map.set(moment().format('YYYY-MM-DD HH:mm:SS'),formData);
+                                DeviceStorage.update("multiStockMove_"+
+                                    moment().format('YYYY-MM-DD'),DeviceStorage.strMapToObj(map));
+                            }
+                        });
+
+
                         Alert.alert(
                             '移库成功',
                             '当前移动成功数量:' + selectSkuSize,
@@ -434,6 +475,8 @@ export const multiStockMove = (facilityId, locationSeqId, targetLocationSeqId, p
                                         dispatch(updateLocalSkuList(productQuantity));
                                         dispatch(clearData(locationSeqId));
                                         dispatch(loadingWait(false));
+                                        console.log( DeviceStorage.get("multiStockMove_"+
+                                            moment().format('YYYY-MM-DD')));
                                     }
                                 },
                             ],
@@ -454,6 +497,55 @@ export const importAllSku = (skuList) => {
     return (dispatch)=> {
         dispatch(loadingWait(true));
         dispatch({type: 'IMPORT_ALL_SKU', skuList})
+    }
+};
+
+//提交日志
+export const upload = () => {
+    return (dispatch)=> {
+        let nowKey = "multiStockMove_"+moment().format('YYYY-MM-DD');
+        DeviceStorage.get(nowKey).then((log)=> {
+            console.log("---1----")
+            console.log(log)
+            console.log("---1----")
+            const url = ServiceURl.wmsManager + 'uploadMobileInterfaceLog';
+            DeviceStorage.get('userInfo').then((userInfo)=> {
+                let formData = new FormData();
+                formData.append("login.username", userInfo.username);
+                formData.append("login.password", userInfo.password);
+                formData.append("deviceCode", DeviceInfo.getUniqueID());
+                //formData.append("deviceCode", "0099998");
+                formData.append("serviceName", "multiStockMove");
+                formData.append("logMap",  JSON.stringify(log));
+                console.log(formData)
+                Request.postRequest(url, formData, function (response) {
+                    const {_ERROR_MESSAGE_:_ERROR_MESSAGE_}=response;
+                    if (_ERROR_MESSAGE_) {
+                        Alert.alert(
+                            '错误',
+                            _ERROR_MESSAGE_,
+                            [
+                                {
+                                    text: '确定',
+                                    onPress: () => {
+                                        dispatch(loadingWait(false));
+                                    }
+                                },
+                            ],
+                            {cancelable: false}
+                        );
+                    }else{
+                        //每次请求成功清空本地文件
+                        DeviceStorage.delete(nowKey);
+                    }
+                }, function (err) {
+                    console.log(JSON.stringify(err));
+                    alert('请求后台失败！')
+                });
+            })
+
+        });
+
     }
 };
 

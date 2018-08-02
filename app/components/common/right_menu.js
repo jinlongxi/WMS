@@ -2,6 +2,7 @@
  * Created by jinlongxi on 18/1/2.
  */
 import React, {Component} from 'react';
+import {Alert} from 'react-native';
 import {
     AppRegistry,
     StyleSheet,
@@ -30,6 +31,7 @@ class rightMenu extends React.PureComponent {
     };
 
     render() {
+        const {reservoirState, selectStore}=this.props;
         return (
             <Menu
                 ref={this.setMenuRef}
@@ -39,7 +41,7 @@ class rightMenu extends React.PureComponent {
                     </TouchableOpacity>
                 }
             >
-                <MenuItem onPress={this.hideMenu}>功能一</MenuItem>
+                <MenuItem onPress={()=>{this.hideMenu}}>功能一</MenuItem>
                 <MenuItem onPress={this.hideMenu}>功能二</MenuItem>
                 <MenuItem onPress={this.hideMenu} disabled>
                     功能三

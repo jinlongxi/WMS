@@ -22,7 +22,8 @@ import {
     ListView,
     TouchableOpacity,
     Platform,
-    InteractionManager
+    InteractionManager,
+    Alert
 } from 'react-native';
 class moduleList extends Component {
     constructor(props) {
@@ -106,17 +107,21 @@ class moduleList extends Component {
                 })
             }
         } else if (item.type === 'StockQuery') {
-                     const {navigator} = this.props;
-                     if (navigator) {
-                         navigator.push({
-                             name: 'StockQuery',
-                             component: Inventory,
-                             params: {
-                                 selectStore: this.props.selectStore,
-                             },
-                         })
-                     }
-                 }
+             const {navigator} = this.props;
+             if (navigator) {
+                 navigator.push({
+                     name: 'StockQuery',
+                     component: Inventory,
+                     params: {
+                         selectStore: this.props.selectStore,
+                     },
+                 })
+                 Alert.alert(
+                     '库位:'+JSON.stringify(navigation),
+                     JSON.stringify(navigation)
+                 );
+             }
+         }
     }
 
     render() {

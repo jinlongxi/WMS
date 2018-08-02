@@ -81,6 +81,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#28a745'
     },
+    uploading: {
+        flex: 1,
+        backgroundColor: '#F37B22'
+    },
     footer_btn_text: {
         paddingVertical: 4,
         paddingHorizontal: 5,

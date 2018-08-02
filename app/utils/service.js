@@ -5,6 +5,7 @@
 
 const BaseURL = 'https://wms.zuczug.com/rubikcube/control/';   //素然正式服务器
 //const BaseURL = 'http://121.199.20.78:8080/rubikcube/control/';   //素然测试服务器
+//const BaseURL = 'http://192.168.17.243:8080/rubikcube/control/';
 
 const YouPing_API = {
     wmsManager: BaseURL

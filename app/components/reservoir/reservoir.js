@@ -151,6 +151,12 @@ class Reservoir extends React.Component {
         }
     }
 
+    //提交日志
+    _upload() {
+        const {reservoirActions}=this.props;
+        reservoirActions.upload();
+    }
+
     //移库操作
     _multiStockMove() {
         const {reservoirActions}=this.props;
@@ -276,14 +282,7 @@ class Reservoir extends React.Component {
                     {
                         commendLocationSeqId ?
                             <View>
-                                <Text style={[styles.txt, {
-                                    fontSize: 14,
-                                    color: '#777'
-                                }]}>{commendLocationSeqArray[0]}</Text>
-                                <Text style={[styles.txt, {
-                                    fontSize: 14,
-                                    color: '#777'
-                                }]}>{commendLocationSeqArray[1]}</Text>
+                                {this._locationList(commendLocationSeqArray)}
                             </View>: null
                     }
                 </View>
@@ -293,6 +292,14 @@ class Reservoir extends React.Component {
         )
     };
 
+    _locationList(commendLocationSeqArray) {
+        return commendLocationSeqArray.map((locationSeq)=> {
+            return (<Text style={[styles.txt, {
+                fontSize: 14,
+                color: '#777'
+            }]}>{locationSeq}</Text>)
+        });
+    }
 
     _renderSeparator(sectionID, rowID) {
         return (
@@ -417,6 +424,13 @@ class Reservoir extends React.Component {
                         this._clearData()
                     }}>
                         <Text style={styles.footer_btn_text}>清空</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.uploading}
+                        onPress={()=> {
+                            this._upload()
+                        }}>
+                        <Text style={styles.footer_btn_text}>日志提交</Text>
                     </TouchableOpacity>
                 </View>
             </View>

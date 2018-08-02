@@ -54,6 +54,28 @@ class DeviceStorage {
     static deleteAll() {
         return AsyncStorage.clear();
     }
+
+    /**
+     *map转化为对象（map所有键都是字符串，可以将其转换为对象）
+     */
+    static strMapToObj(strMap){
+        let obj= Object.create(null);
+        for (let[k,v] of strMap) {
+            obj[k] = v;
+        }
+        return obj;
+    };
+
+    /**
+     *对象转换为Map
+     */
+    static objToStrMap(obj){
+        let strMap = new Map();
+        for (let k of Object.keys(obj)) {
+            strMap.set(k,obj[k]);
+        }
+        return strMap;
+    };
 }
 
 export default DeviceStorage;
